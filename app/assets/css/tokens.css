@@ -1,0 +1,18 @@
+:root {
+  --brand: #f58132;
+  --ink: #000;
+  --canvas: #fff;
+  --muted: #5b5b5b;
+  --line: #d5d5d5;
+  --soft: #f3f1ed;
+  --danger: #a42117;
+  --success: #17652d;
+  --warning: #8a4a00;
+  --radius-panel: 32px;
+  --radius-field: 12px;
+  --radius-pill: 999px;
+  --shadow: 0 18px 60px rgb(0 0 0 / 10%);
+  --max: 1280px;
+  --motion-fast: 140ms;
+  --motion-base: 300ms;
+}
