@@ -16,4 +16,5 @@ export interface BookingClient {
   quote(input: SearchInput, selection: QuoteSelection): Promise<Quote>
   createBooking(draft: BookingDraft, idempotencyKey: string): Promise<BookingStatusView>
   getBookingStatus(id: string, scenario?: string): Promise<BookingStatusView>
+  cancelBooking(id: string): Promise<void>
 }

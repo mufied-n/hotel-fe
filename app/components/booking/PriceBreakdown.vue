@@ -7,10 +7,10 @@ defineProps<{ quote: Quote }>()
 <template>
   <dl class="breakdown">
     <div><dt>Harga awal</dt><dd>{{ formatMoney(quote.original) }}</dd></div>
-    <div><dt>Diskon demo</dt><dd>− {{ formatMoney(quote.discount) }}</dd></div>
-    <div><dt>Subtotal sebelum pajak & layanan</dt><dd>{{ formatMoney(quote.subtotal) }}</dd></div>
-    <div><dt>Pajak (sudah termasuk)</dt><dd>{{ formatMoney(quote.taxes) }}</dd></div>
-    <div><dt>Layanan (sudah termasuk)</dt><dd>{{ formatMoney(quote.service) }}</dd></div>
+    <div><dt>Diskon</dt><dd>− {{ formatMoney(quote.discount) }}</dd></div>
+    <div><dt>Subtotal sebelum pajak</dt><dd>{{ formatMoney(quote.subtotal) }}</dd></div>
+    <div><dt>Pajak</dt><dd>{{ formatMoney(quote.taxes) }}</dd></div>
+    <div v-if="quote.service.amount"><dt>Layanan</dt><dd>{{ formatMoney(quote.service) }}</dd></div>
     <div class="total"><dt>Total final</dt><dd>{{ formatMoney(quote.total) }}</dd></div>
   </dl>
 </template>

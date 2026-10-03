@@ -1,7 +1,11 @@
+<script setup lang="ts">
+const isApi = computed(() => useRuntimeConfig().public.bookingMode === 'api')
+</script>
+
 <template>
   <div>
     <BrandHeader compact />
-    <div class="demo-strip"><span class="badge">Demo — tidak membuat reservasi</span></div>
+    <div class="demo-strip"><span class="badge">{{ isApi ? 'Terhubung ke lingkungan booking uji' : 'Demo — tidak membuat reservasi' }}</span></div>
     <main class="booking-main"><slot /></main>
     <BrandFooter compact />
   </div>

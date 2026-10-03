@@ -1,0 +1,22 @@
+<script setup lang="ts">
+import type { GuestReceipt } from '~~/shared/types/backend'
+import { formatMoney, rupiah } from '~/utils/money'
+
+definePageMeta({ layout: 'booking' })
+useSeoMeta({ title: 'Receipt booking' })
+const route = useRoute()
+const receipt = ref<GuestReceipt | null>(null)
+const pending = ref(false)
+const error = ref('')
+async function load() {
+  pending.value = true; error.value = ''; try { receipt.value = await $fetch<GuestReceipt>(`/api/bff/guest/bookings/${encodeURIComponent(String(route.params.id))}/receipt`) }
+  catch (cause) { const value = cause as { statusCode?: number, data?: { statusMessage?: string } }; if (value.statusCode === 401) await navigateTo(`/booking/login?returnTo=${encodeURIComponent(route.fullPath)}`); else error.value = value.data?.statusMessage || 'Receipt belum tersedia.' }
+  finally { pending.value = false }
+}
+onMounted(load)
+function printReceipt() { window.print() }
+</script>
+
+<template><div class="container receipt-page"><p v-if="pending" role="status">Memuat receipt…</p><UiInlineAlert v-if="error" tone="error" live>{{ error }} <BrandButton to="/booking/my">Kembali</BrandButton></UiInlineAlert><article v-if="receipt" class="receipt"><header><div><p class="eyebrow">Receipt booking</p><h1>{{ receipt.hotel_info.name }}</h1><p>{{ receipt.hotel_info.address }}</p></div><div class="meta"><strong>{{ receipt.invoice_number }}</strong><span>{{ receipt.invoice_date }}</span><span class="badge">{{ receipt.status }}</span></div></header><section class="receipt-grid"><div><h2>Reservasi</h2><p>{{ receipt.booking_reference }}<br>{{ receipt.stay_details.check_in_date }} {{ receipt.stay_details.check_in_time }} — {{ receipt.stay_details.check_out_date }} {{ receipt.stay_details.check_out_time }}<br>{{ receipt.stay_details.total_nights }} malam · {{ receipt.stay_details.timezone }}</p></div><div><h2>Tamu</h2><p>{{ receipt.guest_details.name }}<br>{{ receipt.guest_details.email }}<br>{{ receipt.guest_details.phone }}</p></div></section><section><h2>{{ receipt.room_item.num_rooms }}× {{ receipt.room_item.room_type_name }}</h2><p>{{ receipt.room_item.meal_plan }} · {{ receipt.room_item.total_nights }} malam</p></section><dl class="totals"><div><dt>Kamar</dt><dd>{{ formatMoney(rupiah(receipt.pricing_breakdown.room_subtotal_minor)) }}</dd></div><div><dt>Sarapan</dt><dd>{{ formatMoney(rupiah(receipt.pricing_breakdown.breakfast_charge_minor)) }}</dd></div><div><dt>Diskon</dt><dd>− {{ formatMoney(rupiah(receipt.pricing_breakdown.discount_minor)) }}</dd></div><div><dt>Pajak</dt><dd>{{ formatMoney(rupiah(receipt.pricing_breakdown.tax_minor)) }}</dd></div><div class="total"><dt>Total</dt><dd>{{ formatMoney(rupiah(receipt.pricing_breakdown.total_price_minor)) }}</dd></div></dl><section><h2>Kebijakan</h2><p>{{ receipt.policies.check_in_policy }}</p><p>{{ receipt.policies.cancellation_policy }}</p></section><footer><p>Pembayaran: {{ receipt.payment_summary.status }} · {{ receipt.payment_summary.provider }} <span v-if="receipt.payment_summary.provider_reference">· {{ receipt.payment_summary.provider_reference }}</span></p><p class="screen-only">Receipt ini dapat dicetak dari browser. Ini bukan endpoint PDF server atau pernyataan invoice pajak.</p></footer></article><div v-if="receipt" class="screen-only actions"><button class="button" type="button" @click="printReceipt">Cetak / simpan PDF</button><a class="button button--dark" :href="`/api/bff/guest/bookings/${receipt.booking_id}/calendar`">Unduh kalender</a><BrandButton to="/booking/my">Booking Saya</BrandButton></div></div></template>
+
+<style scoped>.receipt { border: 2px solid #000; padding: clamp(24px, 5vw, 64px); background: #fff; }.receipt header, .receipt-grid { display: grid; gap: 24px; }.meta { display: grid; justify-items: start; gap: 5px; }.receipt section { padding-block: 24px; border-top: 1px solid var(--line); }.totals { display: grid; gap: 8px; margin: 20px 0; }.totals div { display: flex; justify-content: space-between; gap: 20px; }.totals dd { margin: 0; }.totals .total { border-top: 2px solid #000; padding-top: 12px; font-size: 1.2rem; font-weight: 900; }.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; } @media (min-width: 760px) { .receipt header { grid-template-columns: 1fr auto; }.receipt-grid { grid-template-columns: 1fr 1fr; } } @media print { :global(body) { background: #fff; } :global(.header), :global(.demo-strip), :global(.footer), .screen-only { display: none !important; }.receipt-page { width: 100%; max-width: none; }.receipt { border: 0; padding: 0; } }</style>

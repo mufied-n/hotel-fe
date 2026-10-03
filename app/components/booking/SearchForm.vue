@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { Occupancy, SearchInput } from '~/types/booking'
-import { encodeSearch } from '~/utils/search-query'
 import { validateSearch } from '~/utils/validation'
+import { addDays, todayInJakarta } from '~/utils/dates'
 
 const props = defineProps<{ initial?: SearchInput }>()
 const emit = defineEmits<{ search: [value: SearchInput] }>()
-const form = reactive<SearchInput>(props.initial ? structuredClone(props.initial) : { checkIn: '2026-10-03', checkOut: '2026-10-04', occupancy: [{ roomIndex: 0, adults: 1, childrenAges: [] }], locale: 'id-ID', currency: 'IDR' })
+const today = todayInJakarta()
+const form = reactive<SearchInput>(props.initial ? structuredClone(props.initial) : { checkIn: today, checkOut: addDays(today, 1), occupancy: [{ roomIndex: 0, adults: 1, childrenAges: [] }], locale: 'id-ID', currency: 'IDR' })
 const errors = ref<string[]>([])
 const { setSearch } = useBookingDraft()
 
@@ -18,13 +19,12 @@ function setChildren(room: Occupancy, event: Event) {
   const count = Number((event.target as HTMLSelectElement).value)
   room.childrenAges = Array.from({ length: count }, (_, index) => room.childrenAges[index] ?? 7)
 }
-async function submit() {
+function submit() {
   errors.value = validateSearch(form)
   if (!errors.value.length) {
     const input = JSON.parse(JSON.stringify(form)) as SearchInput
     setSearch(input)
     emit('search', input)
-    await navigateTo({ path: '/booking/results', query: encodeSearch(input) })
   }
 }
 </script>
@@ -44,7 +44,7 @@ async function submit() {
       <label v-for="(_, childIndex) in room.childrenAges" :key="childIndex">Usia anak {{ childIndex + 1 }}<select v-model.number="room.childrenAges[childIndex]"><option v-for="age in 18" :key="age - 1" :value="age - 1">{{ age - 1 }}</option></select></label>
     </fieldset>
     <UiFormField id="promo" label="Kode promo" hint="Opsional. Coba OCTOBREAK pada demo."><template #default="{ describedby }"><input id="promo" v-model.trim="form.promoCode" type="text" maxlength="30" :aria-describedby="describedby" autocomplete="off"></template></UiFormField>
-    <button class="button" type="button" @click="submit">Cari kamar</button>
+    <button class="button" type="submit">Cari kamar</button>
   </form>
 </template>
 

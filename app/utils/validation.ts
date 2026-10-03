@@ -16,6 +16,8 @@ export function validateGuest(guest: GuestDetails): Record<string, string> {
   const errors: Record<string, string> = {}
   if (guest.fullName.trim().length < 2) errors.fullName = 'Masukkan nama lengkap.'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guest.email)) errors.email = 'Masukkan email yang valid.'
+  if (guest.phone && !/^\+?[0-9][0-9\s-]{7,19}$/.test(guest.phone)) errors.phone = 'Masukkan nomor telepon yang valid.'
+  if (guest.arrivalTime && !/^([01]\d|2[0-3]):[0-5]\d$/.test(guest.arrivalTime)) errors.arrivalTime = 'Gunakan format waktu 24 jam.'
   if ([...guest.specialRequests].length > 500) errors.specialRequests = 'Permintaan maksimal 500 karakter.'
   return errors
 }

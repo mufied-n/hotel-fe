@@ -9,7 +9,8 @@ defineProps<{ compact?: boolean }>()
         <span>PULANG</span><small>ke UTTARA</small>
       </NuxtLink>
       <nav id="main-nav" class="nav" aria-label="Navigasi utama">
-        <span>Booking Webapp</span>
+        <NuxtLink to="/booking">Cari kamar</NuxtLink>
+        <NuxtLink to="/booking/my">Booking Saya</NuxtLink>
       </nav>
     </div>
   </header>

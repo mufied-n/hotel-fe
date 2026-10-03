@@ -102,5 +102,12 @@ export function createMockBookingClient(): BookingClient {
       if (!found) throw new BookingClientError({ code: 'UNAUTHORIZED', message: 'Booking demo tidak ditemukan dalam sesi ini.', retryable: false })
       return { ...found, status: statusFromScenario(scenario) ?? found.status }
     },
+
+    async cancelBooking(id: string): Promise<void> {
+      await pause()
+      const found = statusStore.get(id)
+      if (!found) throw new BookingClientError({ code: 'UNAUTHORIZED', message: 'Booking demo tidak ditemukan dalam sesi ini.', retryable: false })
+      statusStore.set(id, { ...found, status: 'cancelled', paymentUrl: undefined })
+    },
   }
 }

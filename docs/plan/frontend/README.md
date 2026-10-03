@@ -2,6 +2,8 @@
 
 Tanggal: 3 Oktober 2026. Status: IMPLEMENTED FOR LOCAL DEMO; live integration dan physical-device QA belum selesai. Root FE: `/mnt/code/projects/jobs/pulang/mimiking-booking-secure`. Backend: `/mnt/code/projects/jobs/pulang/current-booking`.
 
+Fase berikutnya dimiliki [rencana FE dan integrasi API](../integration/README.md). Implementasi M0 dan guest vertical slice M1–M3 telah dimulai: BFF/session, search–quote–create–status, OTP, Booking Saya, receipt/ICS dan guest refund read. Dokumen ini tetap baseline UI demo; gate live di bawah tidak berarti seluruh pekerjaan adapter/UI harus menunggu semua roadmap backend selesai.
+
 ## Outcome tahap pertama
 
 Prototype UI yang dapat dinavigasi dari pencarian sampai status booking, memakai identitas official website dan data fixture. Tidak memesan stok atau memproses pembayaran nyata. Semua halaman transaksi menampilkan badge “Demo — tidak membuat reservasi”. Simulasi sukses bukan bukti confirmed dari hotel.
