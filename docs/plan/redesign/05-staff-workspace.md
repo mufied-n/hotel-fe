@@ -1,6 +1,8 @@
 # RD-05 — Konsistensi workspace staff
 
-Status: PLANNED, dikerjakan setelah arah guest stabil. Dependensi: RD-01. Owner: FE operations. Referensi [paket OPS](../integration/operations/README.md) dan [completion](../integration/completion/README.md).
+Status: IN PROGRESS — fondasi responsive, session/BFF read, adapter DTO, shared states dan route-level visual pass sudah diterapkan; activation mutation dan QA device tetap terbuka. Dependensi: RD-01. Owner: FE operations. Referensi [paket staff terperinci](staff/README.md), [review backend](staff/00-backend-review.md), [paket OPS](../integration/operations/README.md) dan [completion](../integration/completion/README.md).
+
+Backend snapshot `3236e59` sudah mempunyai trusted staff login/session. FE session/BFF/adapter belum mengintegrasikannya. Pernyataan lama auth belum tersedia berlaku pada FE, bukan source BE terbaru. Activation tetap per capability; refund, OOO, extension dan version-safe management memerlukan gate tersendiri dalam review. Tracker tunggal RD-06 diperinci melalui RD-S01–S10.
 
 ## Arah
 

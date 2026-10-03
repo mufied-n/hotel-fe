@@ -12,4 +12,10 @@ describe('staff preview permissions', () => {
     expect(roleCan('gm_admin', 'configuration')).toBe(true)
     expect(roleCan('gm_admin', 'channels')).toBe(true)
   })
+
+  it('keeps revenue and finance capabilities separated', () => {
+    expect(roleCan('revenue_mgr', 'revenue')).toBe(true)
+    expect(roleCan('revenue_mgr', 'finance')).toBe(false)
+    expect(roleCan('finance', 'revenue')).toBe(false)
+  })
 })

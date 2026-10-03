@@ -1,10 +1,11 @@
 import type { StaffCapability, StaffPreviewRole } from '~/types/management'
 
-export const staffRoleLabels: Record<StaffPreviewRole, string> = { receptionist: 'Receptionist', housekeeping: 'Housekeeping', finance: 'Finance', gm_admin: 'GM admin' }
+export const staffRoleLabels: Record<StaffPreviewRole, string> = { receptionist: 'Receptionist', housekeeping: 'Housekeeping', revenue_mgr: 'Revenue manager', finance: 'Finance', gm_admin: 'GM admin' }
 const roleCapabilities: Record<StaffPreviewRole, StaffCapability[]> = {
-  receptionist: ['front_desk', 'catalog', 'notifications'],
-  housekeeping: ['housekeeping', 'catalog'],
-  finance: ['finance', 'revenue', 'audit'],
+  receptionist: ['front_desk'],
+  housekeeping: ['housekeeping'],
+  revenue_mgr: ['catalog', 'revenue'],
+  finance: ['finance'],
   gm_admin: ['front_desk', 'housekeeping', 'finance', 'catalog', 'revenue', 'channels', 'notifications', 'configuration', 'audit'],
 }
 

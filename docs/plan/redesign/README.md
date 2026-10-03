@@ -22,7 +22,7 @@ Outcome dibedakan menjadi: **UX selesai** dengan seluruh state dan fallback yang
 | RD-02 | [Search dan pemilihan kamar](02-search-room-selection.md) | Search, results, detail, varian/paket, konteks navigasi | RD-01 |
 | RD-03 | [Checkout dan status](03-checkout-status.md) | Guest, review, total, consent, timer, recovery | RD-01–02 |
 | RD-04 | [Booking Saya dan layanan tamu](04-my-bookings.md) | OTP, list/detail, request/refund, receipt | RD-01; RD-03 untuk status bersama |
-| RD-05 | [Workspace staff](05-staff-workspace.md) | Navigasi, board/tabel/form, identity dan capability state | RD-01; arah guest stabil |
+| RD-05 | [Workspace staff](05-staff-workspace.md), [paket implementasi](staff/README.md) | Review backend terbaru + lima kelompok staff, session/adapter, navigation, boards, editor dan QA | RD-01; gate per capability |
 | RD-06 | [Tracker dan urutan eksekusi](06-execution-tracker.md) | Task, checkpoint, dependensi, batas review | Seluruh owner |
 | RD-07 | [QA dan handoff](07-qa-and-handoff.md) | State matrix, visual/accessibility/regression evidence | Dikerjakan sejak fondasi |
 | RD-08 | [Animasi dan feedback](08-motion-and-feedback.md) | Fondasi + section/route/loading lanjutan pada bagian 9; [preview timing](previews/motion-storyboard.html) | Core implemented; RD-T27–30 review/QA tersisa |

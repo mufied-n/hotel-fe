@@ -175,3 +175,37 @@ export interface GuestSpecialRequest {
 export interface GuestSpecialRequestsResponse { booking_id: string, requests: GuestSpecialRequest[] }
 
 export interface BackendProblem { error?: string, code?: string, title?: string, detail?: string, message?: string, status?: number }
+
+export type BackendStaffRole = 'receptionist' | 'housekeeping' | 'revenue_mgr' | 'finance' | 'gm_admin'
+export interface BackendStaffPrincipal { username: string, role: BackendStaffRole, full_name?: string }
+export interface BackendStaffLoginResponse { token: string, expires_at: string, staff: BackendStaffPrincipal }
+
+export type BackendCleanlinessStatus = 'vacant_dirty' | 'cleaning' | 'vacant_clean' | 'inspected' | 'occupied' | 'out_of_service' | 'out_of_order'
+export interface BackendOperationalRoom {
+  room_number: string
+  room_type_id: string
+  room_type_name: string
+  floor: number
+  cleanliness_status: BackendCleanlinessStatus
+  maintenance_notes: string
+  current_booking_id?: string
+  guest_name?: string
+  updated_at: string
+  updated_by: string
+}
+export interface BackendRoomBoard { total_rooms: number, summary: Record<BackendCleanlinessStatus, number>, rooms: BackendOperationalRoom[] | null }
+export interface BackendRosterMetrics { total_rooms: number, sellable_rooms: number, out_of_order_rooms: number, occupied_rooms: number, vacant_inspected_rooms: number, vacant_dirty_rooms: number, cleaning_rooms: number, occupancy_rate_percent: number }
+export interface BackendArrival { booking_id: string, guest_name: string, guest_phone?: string, room_type_id: string, room_type_name: string, assigned_rooms: string[] | null, num_rooms: number, num_guests: number, estimated_arrival_time?: string, special_requests?: string, total_price_minor: number }
+export interface BackendDeparture { booking_id: string, guest_name: string, room_numbers: string[] | null, check_in_date: string, check_out_date: string }
+export interface BackendDailyRoster { date: string, metrics: BackendRosterMetrics, expected_arrivals: BackendArrival[] | null, expected_departures: BackendDeparture[] | null, in_house_count: number }
+export interface BackendHandoverNote { id: string, shift: 'morning' | 'afternoon' | 'night', cash_float_minor: number, pending_issues: string, vip_guest_notes: string, actor_id: string, actor_role: string, created_at: string }
+export interface BackendHandovers { total: number, notes: BackendHandoverNote[] | null }
+export interface BackendRoomMove { id: string, booking_id: string, from_room_number: string, to_room_number: string, move_date: string, reason_category: string, notes: string, actor_id: string, created_at: string }
+export interface BackendRoomMoves { booking_id: string, moves: BackendRoomMove[] | null }
+export interface BackendRoomMoveResult { status: string, booking_id: string, previous_room_number: string, new_room_number: string, move_date: string, message: string }
+export interface BackendExtendStayResult { status: string, booking_id: string, previous_check_out: string, new_check_out: string, additional_nights: number, additional_amount_minor: number, new_total_price_minor: number, payment_status?: string }
+export interface BackendReconciliationSummary { total_settled_minor: number, total_refunded_minor: number, net_captured_minor: number, open_cases_count: number, total_refunds_count: number }
+export interface BackendPaymentCase { id: string, booking_id?: string, case_type: string, status: 'open' | 'investigating' | 'resolved' | 'dismissed', amount_minor: number, currency: string, provider_reference: string, notes: string, resolved_by?: string, resolved_at?: string, resolution_action?: string, created_at: string, updated_at: string }
+export interface BackendFinanceCases { total: number, cases: BackendPaymentCase[] | null }
+export interface BackendRefund { id: string, booking_id: string, reference_id: string, amount_minor: number, currency: string, reason: string, status: string, created_at: string }
+export interface BackendRefundResponse { status: string, refund: BackendRefund }

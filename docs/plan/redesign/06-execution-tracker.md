@@ -43,6 +43,26 @@ T02 inventory dapat selesai ketika handoff pending sudah tercatat; T17 tetap men
 
 ## Checkpoint dan batas review/PR
 
+### Detail RD-05 — staff setelah review backend
+
+Snapshot backend `3236e59` (3 Oktober 2026): trusted staff auth sudah di source; FE masih fail-closed/sample. [Paket staff](staff/README.md) memperinci RD-T13–15 dan RD-T29, tanpa mengubah status QA guest sebelumnya. Checklist owner tidak menjadi tracker kedua.
+
+| Task | Owner dokumen | Dependency | Outcome | Status |
+|---|---|---|---|---|
+| RD-S00 | ST-00 | Current BE/FE | Review kontrak, source gaps, unit/API scoped evidence | REVIEWED — tests enam package PASS; live DB/provider tidak direrun |
+| RD-S01 | ST-01 | S00 | Session nyata, permission action, allowlist BFF, raw DTO mappers | IN REVIEW — login/me/logout + read allowlist + adapters implemented; live auth E2E WAITING_ENV |
+| RD-S02 | ST-02 | S00; S01 untuk live identity | Shell responsive, reusable states/dialog/drawer, motion | IN REVIEW — grouped nav, topbar, page header, badges, data states, selected/motion implemented; manual device/screen reader open |
+| RD-S03 | ST-03 | S01–02 | Roster, booking action review, handover | IN REVIEW — read/sample UI implemented; live booking/handover mutations locked |
+| RD-S04 | ST-03 | S01–02 | Housekeeping board/transitions/OOO review | IN REVIEW — board/filter/selection/sample editor implemented; OOO live WAITING_BE ST-C06 |
+| RD-S05 | ST-03 | S01–02 | Stay context/move/extension preview/recovery | IN REVIEW — history/candidates/sample review implemented; extension live WAITING_BE ST-C08 |
+| RD-S06 | ST-04 | S01–02 | Finance summary/cases, resolve copy, refund review | IN REVIEW — read adapters/review UI implemented; resolve/refund live WAITING_BE ST-C03–05 |
+| RD-S07 | ST-05 | S01–02 | Catalog complete editor; inventory read/sample/locks | IN REVIEW — full catalog read/sample editor + dirty guard implemented; mutation/version gate open |
+| RD-S08 | ST-05 | S01–02 | Rate/promo editor, dirty validation, impact preview | IN REVIEW — coherent sample UI; live management WAITING_CONTRACT |
+| RD-S09 | ST-06 | S01–02 | Monitoring/admin layouts; flags read; version/retry/audit states | IN REVIEW — sample monitoring/admin + flags read implemented; live writes/retry/audit WAITING_CONTRACT |
+| RD-S10 | ST-07 | Per tahap | Contract, role/state/viewport/motion/regression evidence; capability activation handoff | IN PROGRESS — automated checks/browser flow complete; API environment/device/screen reader open |
+
+REVIEWED bukan IMPLEMENTED. WAITING_BE/CONTRACT membatasi live action, bukan pekerjaan desain/sample. Trusted identity dependency lama kini menjadi FE integration + environment verification; jangan membatalkan gate reliability domain hanya karena login tersedia.
+
 | Checkpoint | Lingkup review | Verifikasi minimum |
 |---|---|---|
 | R0 | Baseline/contract/assets | Source inventory, keputusan scope; belum mengubah UI |
@@ -70,7 +90,7 @@ VERIFIED mensyaratkan file aktual, acceptance dokumen owner, dan bukti terhubung
 | Same-variant multi-room semantics | Label dan selection | Integration catalog/booking |
 | API photo/rate metadata | Card/gallery/benefit | FE adapter + catalog/rate owner |
 | Payment recovery/historical cancellation | Eligible action pada My Bookings | Integration guest/payment |
-| Trusted staff auth/capabilities | Live staff action | Integration identity/ops |
+| Staff session/BFF/capability integration | Trusted auth sudah di BE `3236e59`; FE dan environment gate masih perlu verifikasi (ST-01) | Integration identity/ops |
 | Browser/device availability | Physical-device QA | QA/user device access |
 
 Tidak memperkirakan tanggal selesai sebelum dependency dan kapasitas eksekusi diketahui. Urutan dan gate cukup untuk mulai implementasi setelah pengguna meminta eksekusi.

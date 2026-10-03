@@ -1,0 +1,5 @@
+<script setup lang="ts">
+defineProps<{ eyebrow: string, title: string, description?: string }>()
+</script>
+<template><header class="staff-page-header"><div class="staff-page-header__copy"><p class="eyebrow">{{ eyebrow }}</p><h1>{{ title }}</h1><p v-if="description" class="muted">{{ description }}</p><slot name="nav" /></div><div v-if="$slots.actions" class="staff-page-header__actions"><slot name="actions" /></div></header></template>
+<style scoped>.staff-page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }.staff-page-header__copy { display: grid; gap: 7px; max-width: 760px; }.staff-page-header h1 { margin: 0; font-size: clamp(2.15rem, 5vw, 4.25rem); line-height: .94; }.staff-page-header p { margin: 0; }.staff-page-header__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }@media (max-width: 680px) { .staff-page-header { align-items: stretch; flex-direction: column; }.staff-page-header__actions { justify-content: flex-start; } }</style>
