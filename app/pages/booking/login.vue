@@ -42,6 +42,7 @@ async function submitCode() {
   catch (cause) { error.value = readable(cause) }
   finally { pending.value = false }
 }
+function changeEmail() { clearInterval(timer); cooldown.value = 0; step.value = 'email'; code.value = ''; error.value = '' }
 </script>
 
 <template>
@@ -57,7 +58,7 @@ async function submitCode() {
       <UiFormField id="login-code" label="Kode 6 digit"><template #default="{ describedby }"><input id="login-code" v-model.trim="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" :aria-describedby="describedby"></template></UiFormField>
       <BrandButton type="submit" :disabled="!/^[0-9]{6}$/.test(code)" :loading="pending" loading-label="Memverifikasi…" slow-loading-label="Verifikasi memerlukan waktu…">Masuk</BrandButton>
       <button class="text-action" type="button" :disabled="cooldown > 0 || pending" @click="sendCode">{{ cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode' }}</button>
-      <button class="text-action" type="button" :disabled="pending" @click="step = 'email'; code = ''; error = ''">Ganti email</button>
+      <button class="text-action" type="button" :disabled="pending" @click="changeEmail">Ganti email</button>
     </form>
   </div>
 </template>

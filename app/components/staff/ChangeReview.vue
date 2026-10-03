@@ -1,0 +1,5 @@
+<script setup lang="ts">
+defineProps<{ items: Array<{ label: string, before: string, after: string }> }>()
+</script>
+<template><dl class="change-review"><div v-for="item in items" :key="item.label"><dt>{{ item.label }}</dt><dd><span>{{ item.before || '—' }}</span><b aria-hidden="true">→</b><strong>{{ item.after || '—' }}</strong></dd></div></dl></template>
+<style scoped>.change-review { display: grid; gap: 10px; margin: 0; }.change-review div { display: grid; gap: 5px; padding: 12px 0; border-bottom: 1px solid var(--line); }.change-review dt { color: var(--muted); font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }.change-review dd { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: center; margin: 0; overflow-wrap: anywhere; }.change-review dd strong { color: var(--brand-dark, #9b430d); }@media (max-width: 480px) { .change-review dd { grid-template-columns: 1fr; }.change-review dd b { transform: rotate(90deg); } }</style>

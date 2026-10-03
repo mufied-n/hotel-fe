@@ -38,6 +38,11 @@ Status yang dipakai: PLANNED → IN PROGRESS → IN REVIEW → VERIFIED. Depende
 | RD-T28 | RD-08 §9 | T24, T27 | Image-ready lifecycle cache/error/fallback; approved photography terpisah | IN REVIEW — component/cache/error source built; real-photo visual state awaits approved media |
 | RD-T29 | RD-08 §9 | T24, T27 | Nav/controls staff, single-owner alert/disclosure motion, optional dialog exit | IN REVIEW — staff menu focus trap/return, Escape, scroll lock, native detail drawer and confirmation dialog implemented; dialog exit intentionally deferred; full visual sweep pending |
 | RD-T30 | RD-08 §9/RD-07 | T25–29 | Controlled latency/reordered responses, reduced/SSR/viewport/focus/regression QA | IN REVIEW — typecheck/lint/unit/build and 11-scenario E2E PASS, including mobile focus containment and modal Escape recovery; physical devices/screen reader NOT RUN |
+| RD-T31 | RD-09 | T13–15, T29 | Reusable staff states/filter, URL round trip, stale refresh dan latest-request ownership | IN REVIEW — shared filter/data/freshness primitives and three consumers implemented; controlled stale latency matrix open |
+| RD-T32 | RD-09 | T31 | Unsaved changes, validation dan before→after review untuk seluruh editor staff | IN REVIEW — catalog/inventory/rates/promo/configuration guards and sample review implemented; live conflicts gated |
+| RD-T33 | RD-09 | T31–32 | Monitoring/admin filters, detail drawers, retry review, redaction dan conflict states | IN REVIEW — channels/notifications/audit sample detail and retry review implemented; live contracts gated |
+| RD-T34 | RD-09 | T10–12, T21 | Guest status/OTP/My Bookings/request/refund/receipt/calendar completion | IN REVIEW — filter-empty recovery, OTP reset and receipt print/calendar hardening implemented; full state capture open |
+| RD-T35 | RD-09/RD-07 | T31–34 | State/latency/viewport/accessibility/print regression dan handoff evidence | IN PROGRESS — typecheck/lint, 39 unit tests, 12 E2E scenarios and build PASS; device/screen reader/print artifact NOT RUN |
 
 T02 inventory dapat selesai ketika handoff pending sudah tercatat; T17 tetap menunggu approved assets. UX dapat diverifikasi dengan fallback, tetapi screenshot final brand tidak boleh memakai placeholder sebagai bukti fidelity.
 

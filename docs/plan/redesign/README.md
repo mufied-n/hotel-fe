@@ -1,6 +1,6 @@
 # Rencana redesign webapp PULANG
 
-Tanggal: **3 Oktober 2026, Asia/Jakarta**. Status: **IN PROGRESS — guest journey dan shared shell telah diimplementasikan; asset fidelity, route-level staff pass, dan device QA masih terbuka**.
+Tanggal: **4 Oktober 2026, Asia/Jakarta**. Status: **IN PROGRESS — guest journey dan staff route pass telah diimplementasikan; reliability completion RD-09, asset fidelity, dan device QA masih terbuka**.
 
 Tujuan: membuat booking webapp terasa sebagai kelanjutan PULANG ke UTTARA, dengan fotografi autentik, komposisi editorial, dan transaksi yang mudah dipahami. Dua referensi pengguna membantu hierarchy dan layout; identitas berasal dari [riset official landing](../../research/official-landing-ux-analysis.md).
 
@@ -26,6 +26,7 @@ Outcome dibedakan menjadi: **UX selesai** dengan seluruh state dan fallback yang
 | RD-06 | [Tracker dan urutan eksekusi](06-execution-tracker.md) | Task, checkpoint, dependensi, batas review | Seluruh owner |
 | RD-07 | [QA dan handoff](07-qa-and-handoff.md) | State matrix, visual/accessibility/regression evidence | Dikerjakan sejak fondasi |
 | RD-08 | [Animasi dan feedback](08-motion-and-feedback.md) | Fondasi + section/route/loading lanjutan pada bagian 9; [preview timing](previews/motion-storyboard.html) | Core implemented; RD-T27–30 review/QA tersisa |
+| RD-09 | [Frontend reliability dan completion](09-frontend-reliability-and-completion.md) | Staff state/filter/editor/monitoring hardening serta guest status/OTP/receipt completion | RD-02–08; backend gates tetap terpisah |
 
 RD-06 merupakan satu-satunya tracker status. Checklist dalam dokumen fitur merupakan acceptance yang harus dibuktikan, bukan board status kedua. `app/`, `server/`, dan `tests/` tetap authority implementasi; daftar target baru di paket ini belum berarti file sudah ada.
 
