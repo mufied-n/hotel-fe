@@ -3,20 +3,22 @@ import type { DailyRoster } from '~/types/operations'
 import { formatMoney, rupiah } from '~/utils/money'
 import { jakartaDate, operationsMessage } from '~/utils/operations'
 import { decodeStaffFilterQuery, encodeStaffFilterQuery, type StaffFilterSchema } from '~/utils/staff-filter-query'
+import { createLatestRequestOwner } from '~/utils/latest-request'
+import { preserveOperationsQAQuery } from '~/utils/qa-controls'
 
 definePageMeta({ layout: 'staff' }); useSeoMeta({ title: 'Front desk' })
 const route = useRoute(); const client = useOperationsClient(); const schema = { date: { type: 'date', default: jakartaDate() } } satisfies StaffFilterSchema
-const date = ref(String(decodeStaffFilterQuery(schema, route.query).date)); const roster = ref<DailyRoster | null>(null); const loading = ref(false); const error = ref(''); const lastSuccess = ref<Date | null>(null); let generation = 0
+const date = ref(String(decodeStaffFilterQuery(schema, route.query).date)); const roster = ref<DailyRoster | null>(null); const loading = ref(false); const error = ref(''); const lastSuccess = ref<Date | null>(null); const requests = createLatestRequestOwner()
 const activeFilters = computed(() => date.value === jakartaDate() ? [] : [`Tanggal ${date.value}`])
 async function load() {
-  const current = ++generation; loading.value = true; error.value = ''; try { const result = await client.getDailyRoster(date.value); if (current === generation) { roster.value = result; lastSuccess.value = new Date() } }
-  catch (cause) { if (current === generation) error.value = operationsMessage(cause, 'Roster belum dapat dimuat.') }
-  finally { if (current === generation) loading.value = false }
+  const current = requests.begin(); loading.value = true; error.value = ''; try { const result = await client.getDailyRoster(date.value); if (requests.isLatest(current)) { roster.value = result; lastSuccess.value = new Date() } }
+  catch (cause) { if (requests.isLatest(current)) error.value = operationsMessage(cause, 'Roster belum dapat dimuat.') }
+  finally { if (requests.isLatest(current)) loading.value = false }
 }
-async function applyFilters() { await navigateTo({ path: route.path, query: encodeStaffFilterQuery(schema, { date: date.value }) }, { replace: true }); await load() }
+async function applyFilters() { await navigateTo({ path: route.path, query: { ...preserveOperationsQAQuery(route.query), ...encodeStaffFilterQuery(schema, { date: date.value }) } }, { replace: true }); await load() }
 async function resetFilters() { date.value = jakartaDate(); await applyFilters() }
 watch(() => route.query, (query) => { date.value = String(decodeStaffFilterQuery(schema, query).date) }, { deep: true })
-onMounted(load); onBeforeUnmount(() => generation++)
+onMounted(load); onBeforeUnmount(requests.invalidate)
 </script>
 <template><div class="container ops-page"><StaffPageHeader eyebrow="Daily operations" title="Front desk" description="Kedatangan, keberangkatan, dan kesiapan kamar pada tanggal operasional."><template #nav><div class="ops-subnav"><NuxtLink to="/staff/front-desk">Roster</NuxtLink><NuxtLink to="/staff/front-desk/handover">Handover</NuxtLink></div></template></StaffPageHeader><UiInlineAlert v-if="error && roster" tone="error" live>{{ error }}</UiInlineAlert>
   <StaffFilterBar :active="activeFilters" :busy="loading" :result-label="roster ? `Roster ${roster.date}` : ''" @apply="applyFilters" @reset="resetFilters"><div class="field"><label for="roster-date">Tanggal operasional</label><input id="roster-date" v-model="date" type="date" required /></div></StaffFilterBar><StaffFreshnessStatus v-if="roster" :loading="loading" :stale="Boolean(error)" :last-success="lastSuccess" /><StaffDataState v-if="!roster" :loading="loading" :error="error" loading-label="Memuat roster…" @retry="load" />

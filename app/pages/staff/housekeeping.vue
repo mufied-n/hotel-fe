@@ -2,6 +2,8 @@
 import type { CleanlinessStatus, OperationalRoom, RoomBoard } from '~/types/operations'
 import { cleanlinessLabels, jakartaDate, operationsMessage } from '~/utils/operations'
 import { decodeStaffFilterQuery, encodeStaffFilterQuery, type StaffFilterSchema } from '~/utils/staff-filter-query'
+import { createLatestRequestOwner } from '~/utils/latest-request'
+import { preserveOperationsQAQuery } from '~/utils/qa-controls'
 
 definePageMeta({ layout: 'staff' }); useSeoMeta({ title: 'Housekeeping' })
 const route = useRoute(); const client = useOperationsClient()
@@ -9,18 +11,18 @@ const apiMode = computed(() => useRuntimeConfig().public.operationsMode === 'api
 const statuses = Object.keys(cleanlinessLabels) as CleanlinessStatus[]
 const schema = { floor: { type: 'integer', default: 0, min: 0, max: 999 }, status: { type: 'enum', default: '', values: statuses }, room_type: { type: 'string', default: '', maxLength: 64 } } satisfies StaffFilterSchema
 const initialFilters = decodeStaffFilterQuery(schema, route.query)
-const board = ref<RoomBoard | null>(null); const loading = ref(false); const error = ref(''); const notice = ref(''); const lastSuccess = ref<Date | null>(null); let generation = 0
+const board = ref<RoomBoard | null>(null); const loading = ref(false); const error = ref(''); const notice = ref(''); const lastSuccess = ref<Date | null>(null); const requests = createLatestRequestOwner()
 const filters = reactive({ floor: Number(initialFilters.floor), status: String(initialFilters.status), roomTypeId: String(initialFilters.room_type) })
 const selected = ref<OperationalRoom | null>(null); const nextStatus = ref<CleanlinessStatus>('cleaning'); const notes = ref(''); const submitting = ref(false)
 const ooo = reactive({ roomNumber: '', startDate: jakartaDate(), endDate: '', reason: '' })
 const activeFilters = computed(() => [filters.floor ? `Lantai ${filters.floor}` : '', filters.status ? cleanlinessLabels[filters.status as CleanlinessStatus] : '', filters.roomTypeId ? `Tipe ${filters.roomTypeId}` : ''].filter(Boolean))
 
 async function load() {
-  const current = ++generation; const selectedNumber = selected.value?.roomNumber; loading.value = true; error.value = ''; try { const result = await client.getRoomBoard({ floor: filters.floor || undefined, status: filters.status || undefined, roomTypeId: filters.roomTypeId || undefined }); if (current === generation) { board.value = result; lastSuccess.value = new Date(); if (selectedNumber) selected.value = result.rooms.find(room => room.roomNumber === selectedNumber) || selected.value } }
-  catch (cause) { if (current === generation) error.value = operationsMessage(cause, 'Board kamar belum dapat dimuat.') }
-  finally { if (current === generation) loading.value = false }
+  const current = requests.begin(); const selectedNumber = selected.value?.roomNumber; loading.value = true; error.value = ''; try { const result = await client.getRoomBoard({ floor: filters.floor || undefined, status: filters.status || undefined, roomTypeId: filters.roomTypeId || undefined }); if (requests.isLatest(current)) { board.value = result; lastSuccess.value = new Date(); if (selectedNumber) selected.value = result.rooms.find(room => room.roomNumber === selectedNumber) || selected.value } }
+  catch (cause) { if (requests.isLatest(current)) error.value = operationsMessage(cause, 'Board kamar belum dapat dimuat.') }
+  finally { if (requests.isLatest(current)) loading.value = false }
 }
-async function applyFilters() { await navigateTo({ path: route.path, query: encodeStaffFilterQuery(schema, { floor: filters.floor, status: filters.status, room_type: filters.roomTypeId }) }, { replace: true }); await load() }
+async function applyFilters() { await navigateTo({ path: route.path, query: { ...preserveOperationsQAQuery(route.query), ...encodeStaffFilterQuery(schema, { floor: filters.floor, status: filters.status, room_type: filters.roomTypeId }) } }, { replace: true }); await load() }
 async function resetFilters() { Object.assign(filters, { floor: 0, status: '', roomTypeId: '' }); await applyFilters() }
 function edit(room: OperationalRoom) { selected.value = room; nextStatus.value = room.status === 'vacant_dirty' ? 'cleaning' : room.status === 'cleaning' ? 'vacant_clean' : room.status === 'vacant_clean' ? 'inspected' : room.status; notes.value = room.maintenanceNotes }
 async function updateStatus() {
@@ -34,7 +36,7 @@ async function markOOO() {
   finally { submitting.value = false }
 }
 watch(() => route.query, (query) => { const value = decodeStaffFilterQuery(schema, query); Object.assign(filters, { floor: Number(value.floor), status: String(value.status), roomTypeId: String(value.room_type) }) }, { deep: true })
-onMounted(load); onBeforeUnmount(() => generation++)
+onMounted(load); onBeforeUnmount(requests.invalidate)
 </script>
 
 <template><div class="container ops-page"><StaffPageHeader eyebrow="Operasional kamar" title="Housekeeping board" description="Ringkasan mengikuti filter aktif. Bersih masih memerlukan inspeksi sebelum check-in." />

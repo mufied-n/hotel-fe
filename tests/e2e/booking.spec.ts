@@ -143,6 +143,18 @@ test('round trips safe staff filters and reviews protected editor changes', asyn
   await expect(page.getByText(/Quote live tidak berubah/)).toBeVisible()
 })
 
+test('keeps the last staff snapshot when a controlled refresh fails', async ({ page }) => {
+  await page.goto('/staff/housekeeping?qa_fail=room-board&qa_fail_after=1&qa_delay=50')
+  await expect(page.locator('html')).toHaveAttribute('data-nuxt-ready', 'true')
+  await expect(page.getByText('6 kamar pada hasil filter.')).toBeVisible()
+  await page.getByLabel('Status').selectOption('vacant_dirty')
+  await page.getByRole('button', { name: 'Terapkan' }).click()
+  await expect(page.getByText(/Kegagalan sample terkontrol/)).toBeVisible()
+  await expect(page.getByText(/Data terakhir tetap ditampilkan/)).toBeVisible()
+  await expect(page.locator('.ops-grid--rooms .ops-card')).toHaveCount(6)
+  await expect(page).toHaveURL(/qa_fail=room-board/)
+})
+
 test('keeps mobile staff navigation keyboard-contained and restores focus', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/staff/housekeeping')

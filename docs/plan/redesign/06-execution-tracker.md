@@ -42,7 +42,10 @@ Status yang dipakai: PLANNED → IN PROGRESS → IN REVIEW → VERIFIED. Depende
 | RD-T32 | RD-09 | T31 | Unsaved changes, validation dan before→after review untuk seluruh editor staff | IN REVIEW — catalog/inventory/rates/promo/configuration guards and sample review implemented; live conflicts gated |
 | RD-T33 | RD-09 | T31–32 | Monitoring/admin filters, detail drawers, retry review, redaction dan conflict states | IN REVIEW — channels/notifications/audit sample detail and retry review implemented; live contracts gated |
 | RD-T34 | RD-09 | T10–12, T21 | Guest status/OTP/My Bookings/request/refund/receipt/calendar completion | IN REVIEW — filter-empty recovery, OTP reset and receipt print/calendar hardening implemented; full state capture open |
-| RD-T35 | RD-09/RD-07 | T31–34 | State/latency/viewport/accessibility/print regression dan handoff evidence | IN PROGRESS — typecheck/lint, 39 unit tests, 12 E2E scenarios and build PASS; device/screen reader/print artifact NOT RUN |
+| RD-T35 | RD-09/RD-07 | T31–34 | State/latency/viewport/accessibility/print regression dan handoff evidence | IN PROGRESS — typecheck/lint, 42 unit tests, 19 E2E scenarios, responsive screenshots and build PASS; device/screen reader/print artifact NOT RUN |
+| RD-T36 | RD-10 | T31, T35 | Mock-only controlled delay/failure dan latest-response ownership evidence | VERIFIED — bounded mock/dev controls, latest owner unit test and stale snapshot E2E PASS |
+| RD-T37 | RD-10/RD-07 | T36 | Responsive 360/390/768/1024/1440 + zoom-pressure sweep dan screenshots | VERIFIED EMULATED — 6 matrix scenarios and 12 inspected screenshots PASS; manual zoom/device NOT RUN |
+| RD-T38 | RD-10/RD-07 | T36–37 | Visual findings fixes, full regression dan evidence handoff | VERIFIED — 1024px staff split overflow fixed; full automated checks/build PASS; evidence report written |
 
 T02 inventory dapat selesai ketika handoff pending sudah tercatat; T17 tetap menunggu approved assets. UX dapat diverifikasi dengan fallback, tetapi screenshot final brand tidak boleh memakai placeholder sebagai bukti fidelity.
 

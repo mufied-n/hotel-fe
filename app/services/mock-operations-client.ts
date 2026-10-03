@@ -2,17 +2,24 @@ import { sampleCases, sampleHandovers, sampleMoves, sampleReconciliation, sample
 import type { CleanlinessStatus, DailyRoster, HandoverNote, OperationsClient, RecordHandoverInput, RefundResult, RoomMove } from '~/types/operations'
 import { OperationsError } from '~/types/operations'
 import { addDays } from '~/utils/dates'
+import type { OperationsQAControls, QAOperation } from '~/utils/qa-controls'
 
-const wait = () => new Promise(resolve => setTimeout(resolve, import.meta.dev ? 100 : 5))
-
-export function createMockOperationsClient(): OperationsClient {
+export function createMockOperationsClient(qa: OperationsQAControls = { delayMs: 0, failAfter: Number.MAX_SAFE_INTEGER }): OperationsClient {
   const rooms = structuredClone(sampleRooms)
   const handovers = structuredClone(sampleHandovers)
   const moves = structuredClone(sampleMoves)
   const cases = structuredClone(sampleCases)
+  const calls = new Map<string, number>()
+  async function wait(operation?: QAOperation) {
+    await new Promise(resolve => setTimeout(resolve, qa.delayMs || (import.meta.dev ? 100 : 5)))
+    if (!operation) return
+    const count = (calls.get(operation) || 0) + 1
+    calls.set(operation, count)
+    if (qa.failOperation === operation && count > qa.failAfter) throw new OperationsError('QA_CONTROLLED_FAILURE', `Kegagalan sample terkontrol pada ${operation}.`, 503)
+  }
   return {
     async getRoomBoard(filters = {}) {
-      await wait()
+      await wait('room-board')
       const filtered = rooms.filter(room => (!filters.floor || room.floor === filters.floor) && (!filters.status || room.status === filters.status) && (!filters.roomTypeId || room.roomTypeId === filters.roomTypeId))
       const statuses: CleanlinessStatus[] = ['vacant_dirty', 'cleaning', 'vacant_clean', 'inspected', 'occupied', 'out_of_service', 'out_of_order']
       return { totalRooms: filtered.length, summary: Object.fromEntries(statuses.map(status => [status, filtered.filter(room => room.status === status).length])) as Record<CleanlinessStatus, number>, rooms: structuredClone(filtered) }
@@ -26,7 +33,7 @@ export function createMockOperationsClient(): OperationsClient {
       const room = rooms.find(item => item.roomNumber === roomNumber); if (!room) throw new OperationsError('ROOM_NOT_FOUND', 'Kamar tidak ditemukan.', 404)
       room.status = 'out_of_order'; room.maintenanceNotes = input.reason; room.updatedAt = new Date().toISOString(); room.updatedBy = 'staff:gm_admin_sample'
     },
-    async getDailyRoster(date): Promise<DailyRoster> { await wait(); return { ...structuredClone(sampleRoster), date } },
+    async getDailyRoster(date): Promise<DailyRoster> { await wait('daily-roster'); return { ...structuredClone(sampleRoster), date } },
     async getHandovers(limit = 20, offset = 0) { await wait(); return { total: handovers.length, notes: structuredClone(handovers.slice(offset, offset + limit)) } },
     async recordHandover(input: RecordHandoverInput): Promise<HandoverNote> {
       await wait(); if (!input.pendingIssues.trim() && !input.vipGuestNotes.trim()) throw new OperationsError('INVALID_INPUT', 'Isi minimal satu catatan handover.', 400)
@@ -44,7 +51,7 @@ export function createMockOperationsClient(): OperationsClient {
       return { status: 'ok', bookingId, previousCheckOut: '2026-10-04', newCheckOut: addDays('2026-10-04', input.additionalNights), additionalNights: input.additionalNights, additionalAmountMinor: 750000 * input.additionalNights, newTotalPriceMinor: 2500000 + 750000 * input.additionalNights, paymentStatus: 'sample_only' }
     },
     async getReconciliation() { await wait(); return structuredClone(sampleReconciliation) },
-    async getFinanceCases(status, limit = 50) { await wait(); const filtered = cases.filter(item => !status || item.status === status).slice(0, limit); return { total: filtered.length, cases: structuredClone(filtered) } },
+    async getFinanceCases(status, limit = 50) { await wait('finance-cases'); const filtered = cases.filter(item => !status || item.status === status).slice(0, limit); return { total: filtered.length, cases: structuredClone(filtered) } },
     async resolveCase(caseId, action, notes) { await wait(); const item = cases.find(entry => entry.id === caseId); if (!item) throw new OperationsError('CASE_NOT_FOUND', 'Kasus tidak ditemukan.', 404); item.status = action === 'dismiss' ? 'dismissed' : 'resolved'; item.resolutionAction = action; item.notes = notes || item.notes; item.updatedAt = new Date().toISOString() },
     async createRefund(input): Promise<RefundResult> { await wait(); if (input.amountMinor <= 0) throw new OperationsError('INVALID_AMOUNT', 'Nominal harus lebih dari nol.', 400); if (input.reason.trim().length < 5) throw new OperationsError('REASON_REQUIRED', 'Alasan minimal 5 karakter.', 400); return { id: 'refund-sample-001', bookingId: input.bookingId, referenceId: 'RFND-SAMPLE', amountMinor: input.amountMinor, currency: 'IDR', reason: input.reason.trim(), status: 'pending', createdAt: new Date().toISOString() } },
   }

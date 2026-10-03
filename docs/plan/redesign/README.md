@@ -27,6 +27,7 @@ Outcome dibedakan menjadi: **UX selesai** dengan seluruh state dan fallback yang
 | RD-07 | [QA dan handoff](07-qa-and-handoff.md) | State matrix, visual/accessibility/regression evidence | Dikerjakan sejak fondasi |
 | RD-08 | [Animasi dan feedback](08-motion-and-feedback.md) | Fondasi + section/route/loading lanjutan pada bagian 9; [preview timing](previews/motion-storyboard.html) | Core implemented; RD-T27–30 review/QA tersisa |
 | RD-09 | [Frontend reliability dan completion](09-frontend-reliability-and-completion.md) | Staff state/filter/editor/monitoring hardening serta guest status/OTP/receipt completion | RD-02–08; backend gates tetap terpisah |
+| RD-10 | [Controlled failure dan responsive QA](10-controlled-failure-responsive-qa.md) | Deterministic stale/latency evidence, viewport sweep, screenshot review dan fixes | RD-09 |
 
 RD-06 merupakan satu-satunya tracker status. Checklist dalam dokumen fitur merupakan acceptance yang harus dibuktikan, bukan board status kedua. `app/`, `server/`, dan `tests/` tetap authority implementasi; daftar target baru di paket ini belum berarti file sudah ada.
 
