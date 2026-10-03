@@ -14,6 +14,8 @@ Jika task mencakup subset READY dan WAITING_BE (contoh guest refund read vs staf
 
 ## Register task
 
+Task lanjutan guest refund, housekeeping, roster/handover, stay operations dan finance memiliki [tracker OPS terperinci](operations/02-task-tracker.md). Tabel induk ini menyimpan ringkasan fitur; status subtask OPS dirawat pada tracker tersebut. Plan OPS belum berarti code implementation selesai.
+
 | ID | Milestone | Owner | Status awal | Dependency | Task/dokumen owner | Evidence/commit/blocker |
 |---|---|---|---|---|---|---|
 | BASE-01 | M0 | FE | VERIFIED | none | [Snapshot kontrak/API dan delta handoff](00-contract-and-architecture.md) | Router/model source 3 Oct reviewed; API/finance delta mapped |
@@ -40,10 +42,10 @@ Jika task mencakup subset READY dan WAITING_BE (contoh guest refund read vs staf
 | F06-UI | M3 | FE | IN_PROGRESS | BASE-02 | [Dialog cancellation accessible, policy/errors, bantuan/contact dan UI perubahan dengan capability state.](features/f06-guest-requests.md) | Post-create confirmation/action/error UI built; full historical/request UI pending |
 | F06-API | M3 | FE+BE | IN_PROGRESS | BASE-03 + dependency fitur | [Wire cancellation untuk credential yang sah; historical-session cancel dan request creation menunggu BE contract.](features/f06-guest-requests.md) | Booking-token BFF cancel built; guest-session historical cancel and requests WAITING_BE |
 | F06-QA | M3 | QA+FE | TODO | F06-UI/API + environment | [Sandbox cancel membuktikan status berubah dan tidak mengklaim refund; unauthorized tidak memutasi booking.](features/f06-guest-requests.md) | — |
-| F07-UI | M4 | FE | TODO | BASE-02 | [Workspace frontdesk mobile/table, detail forms/action confirmation dan conflict UI dengan mock.](features/f07-frontdesk.md) | — |
+| F07-UI | M4 | FE | IN_PROGRESS | BASE-02 | [Workspace frontdesk mobile/table, detail forms/action confirmation dan conflict UI dengan mock.](features/f07-frontdesk.md) | Roster/handover/stay sample workspace built; full F07 scope remains |
 | F07-API | M4 | FE+BE | WAITING_BE | BASE-03 + dependency fitur | [Staff adapter hanya setelah trusted identity + worklist contract; endpoint operasi existing diuji sandbox terisolasi.](features/f07-frontdesk.md) | — |
 | F07-QA | M4 | QA+FE | TODO | F07-UI/API + environment | [Contract action/state tests, lalu connected trusted staff session tests dan DB assignment evidence dari BE.](features/f07-frontdesk.md) | — |
-| F08-UI | M4 | FE | TODO | BASE-02 | [Catalog admin form/list/gallery dan inventory read UI dengan states.](features/f08-catalog-inventory.md) | — |
+| F08-UI | M4 | FE | IN_PROGRESS | BASE-02 | [Catalog admin form/list/gallery dan inventory read UI dengan states.](features/f08-catalog-inventory.md) | Housekeeping board subset UI_DONE; catalog admin remains |
 | F08-API | M4 | FE+BE | TODO | BASE-03 + dependency fitur | [Integrasi public catalog segera; staff CRUD setelah gate identity, inventory mutations menunggu kontrak.](features/f08-catalog-inventory.md) | — |
 | F08-QA | M4 | QA+FE | TODO | F08-UI/API + environment | [Mapper tests + public search/catalog smoke; staff CRUD isolated with cleanup setelah identity; validate photo accessibility.](features/f08-catalog-inventory.md) | — |
 | F09-UI | M4 | FE | TODO | BASE-02 | [Guest package/promo errors + staff rate/promo forms berbasis spec.](features/f09-rate-promo.md) | — |
@@ -61,7 +63,7 @@ Jika task mencakup subset READY dan WAITING_BE (contoh guest refund read vs staf
 | F13-UI | M5 | FE | TODO | BASE-02 | [Policy/metadata display dan staff configuration forms dengan conflict/error states.](features/f13-hotel-configuration.md) | — |
 | F13-API | M5 | FE+BE | WAITING_BE | BASE-03 + dependency fitur | [Wire existing quote/receipt fields; WAITING_BE untuk management config.](features/f13-hotel-configuration.md) | — |
 | F13-QA | M5 | QA+FE | TODO | F13-UI/API + environment | [Snapshot regression tests dan owner review atas copy/hotel policy; history unchanged setelah config change.](features/f13-hotel-configuration.md) | — |
-| F14-UI | M3 guest / M4 staff | FE | IN_PROGRESS | BASE-02 | [Guest refund panel sekarang; staff reconciliation/case/refund UI dan confirmation dialogs dengan mock.](features/f14-finance-refunds.md) | Guest refund states built in private detail; staff workspace remains TODO |
+| F14-UI | M3 guest / M4 staff | FE | IN_PROGRESS | BASE-02 | [Guest refund panel sekarang; staff reconciliation/case/refund UI dan confirmation dialogs dengan mock.](features/f14-finance-refunds.md) | Guest refund hardened; staff reconciliation/cases/refund sample workspace built; connected waits auth |
 | F14-API | M3 guest / M4 staff | FE+BE | IN_PROGRESS | BASE-03 + dependency fitur | [Wire guest refund read existing; staff integration WAITING_BE trusted identity dan refund acceptance, lalu sandbox mutation terkontrol.](features/f14-finance-refunds.md) | Guest refund read BFF built; staff mutation waits trusted identity/provider acceptance |
 | F14-QA | M3 guest / M4 staff | QA+FE | TODO | F14-UI/API + environment | [Connected guest ownership test; staff provider sandbox membuktikan jumlah/status tanpa real-money request dan tanpa duplicate retry.](features/f14-finance-refunds.md) | — |
 | F15-UI | M6 | FE | TODO | BASE-02 | [Manual responsive/accessibility checks dan evidence checklist; fix blocking UI defects.](features/f15-verification-pilot.md) | — |

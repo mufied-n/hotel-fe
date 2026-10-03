@@ -151,7 +151,7 @@ export interface GuestReceipt {
 export interface GuestRefundStatus {
   booking_id: string
   has_refund: boolean
-  refunds: Array<{ id: string, amount_minor: number, currency: 'IDR', reason: string, status: 'pending' | 'succeeded' | 'failed', created_at: string }>
+  refunds: Array<{ id: string, amount_minor: number, currency: string, reason: string, status: string, created_at: string, updated_at?: string }>
 }
 
 export interface BackendProblem { error?: string, code?: string, title?: string, detail?: string, message?: string, status?: number }

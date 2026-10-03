@@ -20,3 +20,25 @@
 .placeholder-image span { border: 1px solid currentColor; border-radius: 999px; padding: 7px 12px; font-size: .8rem; font-weight: 700; }
 .two-col { display: grid; gap: 32px; }
 @media (min-width: 768px) { .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ops-page { display: grid; gap: 24px; }
+.ops-page > header { display: grid; gap: 8px; }
+.ops-page > header h1 { margin-bottom: 0; font-size: clamp(2.5rem, 7vw, 5.5rem); }
+.ops-toolbar { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
+.ops-grid { display: grid; gap: 16px; }
+.ops-card { display: grid; gap: 10px; min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 22px; background: #fff; }
+.ops-card h2, .ops-card h3, .ops-card p { margin-bottom: 0; }
+.ops-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ops-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.ops-metric { padding: 16px; border-radius: 18px; background: #000; color: #fff; }
+.ops-metric strong { display: block; font-size: clamp(1.35rem, 4vw, 2rem); color: var(--brand); font-variant-numeric: tabular-nums; }
+.ops-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.ops-table { width: 100%; border-collapse: collapse; background: #fff; }
+.ops-table th, .ops-table td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.ops-table th { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+.ops-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 20px; }
+.ops-split { display: grid; gap: 20px; }
+.ops-subnav { display: flex; flex-wrap: wrap; gap: 8px; }
+.ops-subnav a { border: 1px solid var(--ink); border-radius: 999px; padding: 7px 13px; text-decoration: none; font-weight: 700; }
+.ops-subnav a.router-link-active { background: var(--ink); color: #fff; }
+@media (min-width: 720px) { .ops-toolbar { grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; }.ops-grid--rooms { grid-template-columns: repeat(2, minmax(0, 1fr)); }.ops-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }.ops-split { grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr); align-items: start; } }
+@media (min-width: 1050px) { .ops-grid--rooms { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

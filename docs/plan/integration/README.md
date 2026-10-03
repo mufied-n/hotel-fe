@@ -10,6 +10,8 @@ Scope tetap **webapp**, tanpa landing page atau marketing pages. Existing demo m
 
 ## Cara menjalankan rencana
 
+Paket lanjutan untuk lima task yang disepakati tersedia di [guest refund dan workspace operasional](operations/README.md): rencana per fitur, matriks API, tracker OPS, gate staff dan verification/activation. Paket ini merinci subset F07/F08/F14 tanpa mengganti status implementasi yang sudah ada.
+
 1. [Kontrak, arsitektur dan baseline](00-contract-and-architecture.md): authority, DTO, BFF, money/auth/retry dan observed endpoints.
 2. [Matriks implementasi dan integrasi](01-implementation-integration-matrix.md): F01–F15, API aktual, BFF target dan gate.
 3. [Task tracker](02-task-tracker.md): 51 task, status, dependency, owner dan evidence; semua task integrasi masih TODO/WAITING_BE.

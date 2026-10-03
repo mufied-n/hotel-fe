@@ -22,6 +22,7 @@ export default defineNuxtConfig({
     paymentOrigins: process.env.NUXT_PAYMENT_ORIGINS || 'http://127.0.0.1:18080,http://localhost:18080',
     public: {
       bookingMode: process.env.NUXT_PUBLIC_BOOKING_MODE === 'api' ? 'api' : 'mock',
+      operationsMode: process.env.NUXT_PUBLIC_OPERATIONS_MODE === 'api' ? 'api' : 'mock',
     },
   },
   routeRules: {
