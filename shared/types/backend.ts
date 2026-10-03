@@ -15,6 +15,11 @@ export interface BackendRoomVariant {
   amenities: string[]
   photos: BackendPhoto[]
 }
+export interface BackendAvailabilityResponse {
+  availability: Array<{ date: string, total_rooms: number, available_rooms: number }>
+  quotes: Array<{ date: string, rate_minor: number }>
+  total_minor: number
+}
 
 export interface BackendSearchItem {
   room_variant: BackendRoomVariant
@@ -153,5 +158,20 @@ export interface GuestRefundStatus {
   has_refund: boolean
   refunds: Array<{ id: string, amount_minor: number, currency: string, reason: string, status: string, created_at: string, updated_at?: string }>
 }
+
+export type GuestRequestCategory = 'early_arrival' | 'late_departure' | 'high_floor' | 'quiet_room' | 'bed_type' | 'celebration_setup' | 'baby_crib' | 'dietary_allergy' | 'other'
+export interface GuestSpecialRequest {
+  id: string
+  booking_id: string
+  category: GuestRequestCategory
+  department: 'front_desk' | 'housekeeping'
+  description: string
+  target_time?: string
+  status: 'pending' | 'acknowledged' | 'fulfilled' | 'declined'
+  staff_notes?: string
+  created_at: string
+  updated_at: string
+}
+export interface GuestSpecialRequestsResponse { booking_id: string, requests: GuestSpecialRequest[] }
 
 export interface BackendProblem { error?: string, code?: string, title?: string, detail?: string, message?: string, status?: number }

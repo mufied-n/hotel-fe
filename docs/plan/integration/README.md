@@ -10,6 +10,8 @@ Scope tetap **webapp**, tanpa landing page atau marketing pages. Existing demo m
 
 ## Cara menjalankan rencana
 
+Paket berikutnya untuk F06, hardening F04/F05, catalog/package/promo dan management sample tersedia di [completion plan](completion/README.md). Paket ini memiliki rencana per fitur, tracker CMP, matriks kontrak, source-delta notes dan verifikasi; implementasi barunya belum dimulai.
+
 Paket lanjutan untuk lima task yang disepakati tersedia di [guest refund dan workspace operasional](operations/README.md): rencana per fitur, matriks API, tracker OPS, gate staff dan verification/activation. Paket ini merinci subset F07/F08/F14 tanpa mengganti status implementasi yang sudah ada.
 
 1. [Kontrak, arsitektur dan baseline](00-contract-and-architecture.md): authority, DTO, BFF, money/auth/retry dan observed endpoints.

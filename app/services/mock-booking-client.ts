@@ -52,20 +52,24 @@ export function createMockBookingClient(): BookingClient {
       if (selection.variantIds.length !== input.occupancy.length || selection.ratePlanIds.length !== input.occupancy.length) {
         throw new BookingClientError({ code: 'VALIDATION_ERROR', message: 'Pilih kamar dan paket untuk setiap kamar.', retryable: false })
       }
+      const promoCode = input.promoCode?.trim().toUpperCase()
+      if (promoCode === 'EXPIRED') throw new BookingClientError({ code: 'VALIDATION_ERROR', message: 'Kode promo demo sudah kedaluwarsa.', retryable: false })
+      if (promoCode && promoCode !== 'OCTOBREAK') throw new BookingClientError({ code: 'VALIDATION_ERROR', message: 'Kode promo demo tidak valid.', retryable: false })
       const nights = nightsBetween(input.checkIn, input.checkOut)
       const items = input.occupancy.map((occupancy, roomIndex): QuoteItem => {
         const variant = roomVariants.find(room => room.id === selection.variantIds[roomIndex])
         const ratePlan = ratePlans.find(rate => rate.id === selection.ratePlanIds[roomIndex])
         if (!variant || !ratePlan) throw new BookingClientError({ code: 'VALIDATION_ERROR', message: 'Pilihan kamar atau paket tidak valid.', retryable: false })
-        const roomTotal = nightlyPrices[variant.id]! * nights + (ratePlan.breakfast ? 10950000 * nights : 0)
-        const originalAmount = Math.round(roomTotal / 0.73)
+        const baseTotal = nightlyPrices[variant.id]! * nights + (ratePlan.breakfast ? 10950000 * nights : 0)
+        const originalAmount = Math.round(baseTotal / 0.73)
+        const roomTotal = promoCode === 'OCTOBREAK' ? Math.round(baseTotal * 0.9) : baseTotal
         const discountAmount = originalAmount - roomTotal
         const split = prorate(roomTotal)
         return { roomIndex, occupancy, variant, ratePlan, original: money(originalAmount), discount: money(discountAmount), subtotal: money(split.subtotal), taxes: money(split.taxes), service: money(split.service), total: money(roomTotal) }
       })
       const quote: Quote = {
         id: `quote-${input.checkIn}-${selection.variantIds.join('-')}`,
-        version: input.promoCode?.toUpperCase() === 'OCTOBREAK' ? 2 : 1,
+        version: promoCode === 'OCTOBREAK' ? 2 : 1,
         search: input,
         nights,
         items,

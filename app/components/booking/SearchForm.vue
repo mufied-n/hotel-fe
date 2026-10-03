@@ -30,7 +30,7 @@ function submit() {
 </script>
 
 <template>
-  <form class="search-form panel" novalidate @submit.prevent="submit">
+  <form id="booking-search" class="search-form panel" novalidate @submit.prevent="submit">
     <UiInlineAlert v-if="errors.length" tone="error"><strong>Periksa pencarian:</strong><ul><li v-for="error in errors" :key="error">{{ error }}</li></ul></UiInlineAlert>
     <div class="date-grid">
       <UiFormField id="check-in" label="Check-in"><template #default="{ describedby }"><input id="check-in" v-model="form.checkIn" type="date" :aria-describedby="describedby" required></template></UiFormField>
@@ -43,12 +43,12 @@ function submit() {
       <label>Anak<select :value="room.childrenAges.length" @change="setChildren(room, $event)"><option v-for="n in 4" :key="n - 1" :value="n - 1">{{ n - 1 }}</option></select></label>
       <label v-for="(_, childIndex) in room.childrenAges" :key="childIndex">Usia anak {{ childIndex + 1 }}<select v-model.number="room.childrenAges[childIndex]"><option v-for="age in 18" :key="age - 1" :value="age - 1">{{ age - 1 }}</option></select></label>
     </fieldset>
-    <UiFormField id="promo" label="Kode promo" hint="Opsional. Coba OCTOBREAK pada demo."><template #default="{ describedby }"><input id="promo" v-model.trim="form.promoCode" type="text" maxlength="30" :aria-describedby="describedby" autocomplete="off"></template></UiFormField>
-    <button class="button" type="submit">Cari kamar</button>
+    <details class="promo-field"><summary>Punya kode promo?</summary><UiFormField id="promo" label="Kode promo" hint="Opsional. Kode akan divalidasi bersama harga."><template #default="{ describedby }"><input id="promo" v-model.trim="form.promoCode" type="text" maxlength="30" :aria-describedby="describedby" autocomplete="off"></template></UiFormField></details>
+    <button class="button search-submit" type="submit">Cari kamar <span aria-hidden="true">→</span></button>
   </form>
 </template>
 
 <style scoped>
-.search-form { display: grid; gap: 22px; background: #fff; color: #000; box-shadow: var(--shadow); }.date-grid { display: grid; gap: 16px; }.guest-room { border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-wrap: wrap; gap: 12px; }.guest-room legend { font-weight: 800; padding-inline: 5px; }.guest-room label { display: grid; gap: 5px; font-size: .9rem; }.guest-room select { border: 1px solid #777; border-radius: 10px; padding: 7px 28px 7px 10px; background: #fff; }
+.search-form { scroll-margin-top: 100px; display: grid; gap: 20px; background: #fff; color: #000; box-shadow: var(--shadow); }.date-grid { display: grid; gap: 16px; }.guest-room { border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-wrap: wrap; gap: 12px; }.guest-room legend { font-weight: 900; padding-inline: 5px; }.guest-room label { display: grid; gap: 5px; min-width: 100px; font-size: .9rem; }.guest-room select { border: 1px solid #777; border-radius: 10px; padding: 7px 28px 7px 10px; background: #fff; }.promo-field { border-top: 1px solid var(--line); padding-top: 14px; }.promo-field summary { min-height: 44px; display: flex; align-items: center; font-weight: 900; cursor: pointer; }.promo-field .field { margin-top: 12px; }.search-submit { width: 100%; justify-content: space-between; padding-inline: 24px; }.search-submit span { font-size: 1.2rem; }
 @media (min-width: 700px) { .date-grid { grid-template-columns: 1fr 1fr .75fr; } }
 </style>

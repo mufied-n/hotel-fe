@@ -1,0 +1,7 @@
+<script setup lang="ts">
+import { samplePromos } from '~/data/management-scenarios'
+
+definePageMeta({ layout: 'staff' }); useSeoMeta({ title: 'Promo preview' })
+const notice = ref(''); function save() { notice.value = 'Promo baru hanya dibuat sebagai simulasi.' }
+</script>
+<template><div class="container ops-page"><header><p class="eyebrow">Revenue workspace</p><h1>Promo.</h1><div class="ops-subnav"><NuxtLink to="/staff/rates">Rate plans</NuxtLink><NuxtLink to="/staff/promos">Promo</NuxtLink></div></header><UiInlineAlert tone="info">Validasi kode promo pada quote publik tetap menjadi sumber harga final. Management di sini masih sample.</UiInlineAlert><UiInlineAlert v-if="notice" tone="info" live>{{ notice }}</UiInlineAlert><div class="ops-split"><section class="stack"><article v-for="promo in samplePromos" :key="promo.code" class="ops-card"><div class="ops-card__top"><h3>{{ promo.code }}</h3><span class="badge">{{ promo.status }}</span></div><p>{{ promo.type === 'percent' ? `${promo.value}%` : `IDR ${promo.value.toLocaleString('id-ID')}` }} · {{ promo.startsAt }}–{{ promo.endsAt }}</p></article></section><form class="panel stack" @submit.prevent="save"><h2>Buat promo sample</h2><div class="field"><label for="promo-code">Kode</label><input id="promo-code" required maxlength="24"></div><div class="field"><label for="promo-value">Nilai persen</label><input id="promo-value" type="number" min="1" max="100" required></div><BrandButton type="submit" dark>Simpan simulasi</BrandButton></form></div></div></template>

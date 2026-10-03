@@ -14,6 +14,8 @@ Jika task mencakup subset READY dan WAITING_BE (contoh guest refund read vs staf
 
 ## Register task
 
+Scope lanjutan F06/F04/F05/F08/F09/F12/F10/F11/F13 dirinci pada [tracker completion CMP](completion/02-task-tracker.md). Status CMP dicatat di sana; tabel induk ini tetap ringkasan Fxx. Penyusunan plan tidak meningkatkan status implementasi.
+
 Task lanjutan guest refund, housekeeping, roster/handover, stay operations dan finance memiliki [tracker OPS terperinci](operations/02-task-tracker.md). Tabel induk ini menyimpan ringkasan fitur; status subtask OPS dirawat pada tracker tersebut. Plan OPS belum berarti code implementation selesai.
 
 | ID | Milestone | Owner | Status awal | Dependency | Task/dokumen owner | Evidence/commit/blocker |

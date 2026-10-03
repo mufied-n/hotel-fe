@@ -21,6 +21,17 @@ describe('mock booking client', () => {
     expect(quote.subtotal.amount + quote.taxes.amount + quote.service.amount).toBe(quote.total.amount)
   })
 
+  it('changes the authoritative demo quote for a valid promo and rejects invalid or expired codes', async () => {
+    const client = createMockBookingClient()
+    const selection = { variantIds: ['deluxe-king-bay'], ratePlanIds: ['room_only'] }
+    const baseline = await client.quote({ ...search, occupancy: [search.occupancy[0]!] }, selection)
+    const promo = await client.quote({ ...search, occupancy: [search.occupancy[0]!], promoCode: 'OCTOBREAK' }, selection)
+    expect(promo.total.amount).toBeLessThan(baseline.total.amount)
+    expect(promo.version).toBe(2)
+    await expect(client.quote({ ...search, occupancy: [search.occupancy[0]!], promoCode: 'NOPE' }, selection)).rejects.toThrow('tidak valid')
+    await expect(client.quote({ ...search, occupancy: [search.occupancy[0]!], promoCode: 'EXPIRED' }, selection)).rejects.toThrow('kedaluwarsa')
+  })
+
   it('replays the same submit attempt for an idempotency key', async () => {
     const client = createMockBookingClient()
     const quote = await client.quote({ ...search, occupancy: [search.occupancy[0]!] }, { variantIds: ['deluxe-king-bay'], ratePlanIds: ['room_only'] })

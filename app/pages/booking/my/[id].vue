@@ -14,6 +14,7 @@ const error = ref('')
 const refundState = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
 const refundError = ref('')
 let generation = 0
+const { showIndicator, isSlow } = usePendingFeedback(pending)
 
 function fetchError(cause: unknown, fallback: string) {
   const value = cause as { statusCode?: number, statusMessage?: string, data?: { statusMessage?: string } }
@@ -58,10 +59,10 @@ onBeforeUnmount(() => { generation++ })
 
 <template>
   <div class="container">
-    <p v-if="pending" role="status">Memuat detail booking…</p>
+    <div v-if="pending" class="detail-loading" role="status"><UiLoadingIndicator v-if="showIndicator" /><strong>{{ isSlow ? 'Detail booking memerlukan waktu lebih lama…' : 'Memuat detail booking…' }}</strong></div>
     <UiInlineAlert v-if="error" tone="error" live>{{ error }} <BrandButton @click="load">Coba lagi</BrandButton></UiInlineAlert>
     <template v-if="detail">
-      <header><p class="eyebrow">Booking · {{ detail.id }}</p><h1>{{ detail.room_type_name }}</h1><span class="badge">{{ detail.status.replace('_', ' ') }}</span></header>
+      <header><div><NuxtLink class="back-link" to="/booking/my">← Semua booking</NuxtLink><p class="eyebrow">Booking · {{ detail.id }}</p><h1>{{ detail.room_type_name }}</h1></div><span class="badge">{{ detail.status.replaceAll('_', ' ') }}</span></header>
       <div class="detail-grid">
         <section class="panel stack">
           <h2>Detail reservasi</h2><p><strong>{{ formatDate(detail.check_in) }} — {{ formatDate(detail.check_out) }}</strong></p><p>{{ detail.num_rooms }} kamar · {{ detail.num_guests }} tamu</p>
@@ -69,13 +70,14 @@ onBeforeUnmount(() => { generation++ })
           <BookingRefundStatusPanel :state="refundState" :refund="refund" :error="refundError" @retry="loadRefund()" />
         </section>
         <section class="panel stack">
-          <h2>Aksi tersedia</h2><UiInlineAlert v-if="actions?.can_pay" tone="info">Backend menandai booking dapat dibayar, tetapi pemulihan link pembayaran lintas perangkat belum tersedia.</UiInlineAlert>
+          <h2>Yang dapat dilakukan</h2><UiInlineAlert v-if="actions?.can_pay" tone="info">Booking ini masih dapat dibayar, tetapi link pembayaran belum dapat dipulihkan dari perangkat ini. Periksa status sebelum mencoba pembayaran lain.</UiInlineAlert>
           <BrandButton v-if="actions?.can_download_receipt" :to="`/booking/my/${detail.id}/receipt`">Lihat receipt</BrandButton><a v-if="actions?.can_download_receipt" class="button button--dark" :href="`/api/bff/guest/bookings/${detail.id}/calendar`">Unduh kalender</a>
-          <UiInlineAlert v-if="actions?.can_cancel" tone="info">Pembatalan historis menunggu kontrak credential sesi yang konsisten. Status ini belum menjadi tombol mutasi.</UiInlineAlert><BrandButton to="/booking/my" dark>Kembali ke daftar</BrandButton>
+          <UiInlineAlert v-if="actions?.can_cancel" tone="info">Pembatalan mandiri belum tersedia untuk booking ini. Gunakan bantuan hotel bila perlu mengubah rencana.</UiInlineAlert><BrandButton to="/booking/my" dark>Kembali ke daftar</BrandButton>
         </section>
       </div>
+      <BookingGuestRequestPanel :booking-id="detail.id" :enabled="Boolean(actions?.can_request_assistance)" />
     </template>
   </div>
 </template>
 
-<style scoped>header { margin-bottom: 30px; }.detail-grid { display: grid; gap: 24px; } @media (min-width: 850px) { .detail-grid { grid-template-columns: 1.15fr .85fr; } }</style>
+<style scoped>.container { max-width: 1080px; }.detail-loading { min-height: 180px; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--muted); } header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 32px; } header h1 { margin-bottom: 12px; }.back-link { min-height: 44px; display: inline-flex; align-items: center; margin-bottom: 24px; font-weight: 900; text-underline-offset: 4px; }.detail-grid { display: grid; gap: 24px; }.detail-grid > .panel { border: 1px solid var(--line); background: #fff; }.detail-grid > .panel:first-child { background: var(--soft); } @media (min-width: 850px) { .detail-grid { grid-template-columns: 1.15fr .85fr; align-items: start; } }</style>

@@ -1,0 +1,8 @@
+<script setup lang="ts">
+import { roomVariants } from '~/data/rooms'
+
+definePageMeta({ layout: 'staff' }); useSeoMeta({ title: 'Catalog preview' })
+const selected = ref(roomVariants[0]?.id || ''); const notice = ref('')
+function save() { notice.value = 'Perubahan catalog disimpan hanya sebagai simulasi pada layar ini.' }
+</script>
+<template><div class="container ops-page"><header><p class="eyebrow">Catalog management</p><h1>Katalog kamar.</h1><p class="muted">Periksa struktur nama, fasilitas, kapasitas, dan media sebelum CRUD live tersedia.</p></header><UiInlineAlert tone="info">Mode sample. Simpan tidak mengirim perubahan ke backend.</UiInlineAlert><UiInlineAlert v-if="notice" tone="info" live>{{ notice }}</UiInlineAlert><div class="ops-split"><section class="ops-grid"><article v-for="room in roomVariants" :key="room.id" class="ops-card"><div class="ops-card__top"><div><p class="eyebrow">{{ room.familyId }}</p><h3>{{ room.name }}</h3></div><span class="badge">{{ room.capacity }} tamu</span></div><p>{{ room.bed }}</p><p>{{ room.features.join(' · ') }}</p><BrandButton @click="selected = room.id">Edit sample</BrandButton></article></section><form class="panel stack" @submit.prevent="save"><h2>Editor sample</h2><div class="field"><label for="catalog-room">Kamar</label><select id="catalog-room" v-model="selected"><option v-for="room in roomVariants" :key="room.id" :value="room.id">{{ room.name }}</option></select></div><div class="field"><label for="catalog-note">Catatan perubahan</label><textarea id="catalog-note" rows="5" placeholder="Contoh: tambahkan amenity bathtub" required /></div><BrandButton type="submit" dark>Simpan simulasi</BrandButton></form></div></div></template>
