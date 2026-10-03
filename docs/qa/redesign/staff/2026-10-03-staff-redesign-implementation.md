@@ -1,6 +1,6 @@
 # Staff redesign implementation evidence — 2026-10-03
 
-Status: automated verification complete for mock/read-safe frontend scope; live backend session and mutation activation not run. Frontend baseline before work `5d40ce0`; working tree implementation not yet committed.
+Status: automated verification complete for mock/read-safe frontend scope; live backend session and mutation activation not run. Frontend baseline before work `5d40ce0`; implementation checkpoint committed as `5edb432`.
 
 ## Implemented
 

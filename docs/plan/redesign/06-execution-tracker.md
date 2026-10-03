@@ -1,6 +1,6 @@
 # RD-06 — Tracker eksekusi redesign
 
-Tanggal: 3 Oktober 2026. Tracker diperbarui setelah checkpoint guest redesign. Dokumen plan selesai bukan berarti task implementasi selesai.
+Tanggal: 4 Oktober 2026. Tracker diperbarui setelah checkpoint guest dan staff redesign. Dokumen plan selesai bukan berarti task implementasi selesai.
 
 Status yang dipakai: PLANNED → IN PROGRESS → IN REVIEW → VERIFIED. Dependency yang belum tersedia ditulis terpisah sebagai BLOCKED/NOT RUN dengan alasan. UI verified tidak berarti live verified.
 
@@ -29,15 +29,15 @@ Status yang dipakai: PLANNED → IN PROGRESS → IN REVIEW → VERIFIED. Depende
 | RD-T19 | RD-08 | Fondasi existing | M1: tokens, hover/press/busy button, spinner/skeleton, reduced-motion | VERIFIED — shared primitives, typecheck/lint/unit/E2E PASS |
 | RD-T20 | RD-08 | T19 | M2: results/detail pending, selected, duplicate/stale response guards | VERIFIED — browser loading/selection/quote busy + E2E flow PASS |
 | RD-T21 | RD-08 | T19–20 | M3: checkout/OTP/guest management/status feedback | IN REVIEW — review/OTP/list/status/cancel wired; full state capture pending |
-| RD-T22 | RD-08 | T19 | M4: disclosure/dialog, nav/rows dan staff controls | IN REVIEW — accordion/dialog/linked rows/shared controls wired; staff visual sweep pending |
+| RD-T22 | RD-08 | T19 | M4: disclosure/dialog, nav/rows dan staff controls | IN REVIEW — accordion, native dialog/drawer, linked rows, serta keyboard-safe mobile staff navigation wired; staff visual sweep pending |
 | RD-T23 | RD-08/RD-07 | T19–22 | M5: normal/reduced motion, keyboard/touch, latency/error/regression evidence | IN PROGRESS — automated regression PASS; manual reduced-motion/device matrix NOT RUN |
 | RD-T24 | RD-08 §9 | T19 | Reduced-motion eksplisit, width-stable button, delayed/slow pending helper | VERIFIED — fake-timer unit, typecheck/lint/build PASS |
 | RD-T25 | RD-08 §9 | T24 | Section reveal selektif, observer/focus/SSR/print fallback | VERIFIED — results/detail/review targets; normal/reduced browser checks PASS |
 | RD-T26 | RD-08 §9 | T24–25 | Guest route entrance tanpa exit wait, shell stabil, draft/scroll/focus aman | VERIFIED — Nuxt page transition + complete guest journey PASS |
 | RD-T27 | RD-08 §9 | T24–26 | Loading→content, refresh, quote snapshot/stale guard dan slow feedback | VERIFIED — guest core, detail/list/status, request/refund consumers wired; unit/E2E PASS |
 | RD-T28 | RD-08 §9 | T24, T27 | Image-ready lifecycle cache/error/fallback; approved photography terpisah | IN REVIEW — component/cache/error source built; real-photo visual state awaits approved media |
-| RD-T29 | RD-08 §9 | T24, T27 | Nav/controls staff, single-owner alert/disclosure motion, optional dialog exit | IN REVIEW — shared guest/staff navigation and button controls wired; dialog exit intentionally deferred; full staff visual sweep pending |
-| RD-T30 | RD-08 §9/RD-07 | T25–29 | Controlled latency/reordered responses, reduced/SSR/viewport/focus/regression QA | IN REVIEW — automated unit/E2E/build + normal/reduced responsive browser PASS; physical devices/screen reader NOT RUN |
+| RD-T29 | RD-08 §9 | T24, T27 | Nav/controls staff, single-owner alert/disclosure motion, optional dialog exit | IN REVIEW — staff menu focus trap/return, Escape, scroll lock, native detail drawer and confirmation dialog implemented; dialog exit intentionally deferred; full visual sweep pending |
+| RD-T30 | RD-08 §9/RD-07 | T25–29 | Controlled latency/reordered responses, reduced/SSR/viewport/focus/regression QA | IN REVIEW — typecheck/lint/unit/build and 11-scenario E2E PASS, including mobile focus containment and modal Escape recovery; physical devices/screen reader NOT RUN |
 
 T02 inventory dapat selesai ketika handoff pending sudah tercatat; T17 tetap menunggu approved assets. UX dapat diverifikasi dengan fallback, tetapi screenshot final brand tidak boleh memakai placeholder sebagai bukti fidelity.
 
@@ -51,7 +51,7 @@ Snapshot backend `3236e59` (3 Oktober 2026): trusted staff auth sudah di source;
 |---|---|---|---|---|
 | RD-S00 | ST-00 | Current BE/FE | Review kontrak, source gaps, unit/API scoped evidence | REVIEWED — tests enam package PASS; live DB/provider tidak direrun |
 | RD-S01 | ST-01 | S00 | Session nyata, permission action, allowlist BFF, raw DTO mappers | IN REVIEW — login/me/logout + read allowlist + adapters implemented; live auth E2E WAITING_ENV |
-| RD-S02 | ST-02 | S00; S01 untuk live identity | Shell responsive, reusable states/dialog/drawer, motion | IN REVIEW — grouped nav, topbar, page header, badges, data states, selected/motion implemented; manual device/screen reader open |
+| RD-S02 | ST-02 | S00; S01 untuk live identity | Shell responsive, reusable states/dialog/drawer, motion | IN REVIEW — grouped nav, topbar, page header, badges, data states, mobile focus management, native dialog/drawer, selected/motion implemented; manual device/screen reader open |
 | RD-S03 | ST-03 | S01–02 | Roster, booking action review, handover | IN REVIEW — read/sample UI implemented; live booking/handover mutations locked |
 | RD-S04 | ST-03 | S01–02 | Housekeeping board/transitions/OOO review | IN REVIEW — board/filter/selection/sample editor implemented; OOO live WAITING_BE ST-C06 |
 | RD-S05 | ST-03 | S01–02 | Stay context/move/extension preview/recovery | IN REVIEW — history/candidates/sample review implemented; extension live WAITING_BE ST-C08 |

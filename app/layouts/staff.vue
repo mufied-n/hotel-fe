@@ -6,6 +6,11 @@ const route = useRoute()
 const session = useStaffSession()
 const preview = useStaffPreview()
 const menuOpen = ref(false)
+const desktopNavigation = ref(false)
+const menuButton = ref<HTMLButtonElement | null>(null)
+const sidebar = ref<HTMLElement | null>(null)
+let navigationMedia: MediaQueryList | undefined
+const updateNavigationMode = () => { desktopNavigation.value = Boolean(navigationMedia?.matches); if (desktopNavigation.value) closeMenu(false) }
 const isLogin = computed(() => route.path === '/staff/login')
 const role = computed(() => session.apiMode.value ? session.principal.value?.role : preview.role.value)
 const displayName = computed(() => session.apiMode.value ? (session.principal.value?.fullName || session.principal.value?.username || 'Staff') : staffRoleLabels[preview.role.value])
@@ -19,14 +24,39 @@ const groups: Array<{ label: string, links: Array<{ to: string, label: string, c
 function can(capability: StaffCapability) { return session.apiMode.value ? session.can(capability) : preview.can(capability) }
 async function logout() { if (session.apiMode.value) await session.logout().catch(() => null); else preview.expire(); await navigateTo('/staff/login') }
 watch(() => route.fullPath, () => { menuOpen.value = false })
+function closeMenu(restoreFocus = true) { const wasOpen = menuOpen.value; menuOpen.value = false; if (wasOpen && restoreFocus) nextTick(() => menuButton.value?.focus()) }
+function toggleMenu() { if (menuOpen.value) closeMenu(); else menuOpen.value = true }
+function navigationFocusable() { return sidebar.value ? [...sidebar.value.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')].filter(element => element.offsetParent !== null && !element.hasAttribute('inert')) : [] }
+function onNavigationKeydown(event: KeyboardEvent) {
+  if (!menuOpen.value || desktopNavigation.value) return
+  if (event.key === 'Escape') { event.preventDefault(); closeMenu(); return }
+  if (event.key !== 'Tab' || !sidebar.value) return
+  const focusable = navigationFocusable()
+  if (!focusable.length) return
+  const first = focusable[0]!
+  const last = focusable[focusable.length - 1]!
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+}
+watch(menuOpen, async (open) => {
+  if (import.meta.server || desktopNavigation.value) return
+  document.body.style.overflow = open ? 'hidden' : ''
+  if (open) { await nextTick(); navigationFocusable()[0]?.focus() }
+})
+onMounted(() => {
+  navigationMedia = window.matchMedia('(min-width: 960px)')
+  updateNavigationMode()
+  navigationMedia.addEventListener('change', updateNavigationMode)
+})
+onBeforeUnmount(() => { navigationMedia?.removeEventListener('change', updateNavigationMode); if (!import.meta.server) document.body.style.overflow = '' })
 </script>
 
 <template>
   <div class="staff-shell" :class="{ 'staff-shell--login': isLogin }">
     <a class="skip-link" href="#staff-main">Lewati ke konten</a>
-    <header class="staff-mobile-header"><NuxtLink to="/staff" class="staff-brand"><strong>PUL<span>A</span>NG</strong><small>Operations</small></NuxtLink><button v-if="!isLogin" class="staff-menu-button" type="button" :aria-expanded="menuOpen" aria-controls="staff-navigation" @click="menuOpen = !menuOpen"><span aria-hidden="true">{{ menuOpen ? '×' : '☰' }}</span><span class="sr-only">{{ menuOpen ? 'Tutup navigasi' : 'Buka navigasi' }}</span></button></header>
-    <div v-if="menuOpen" class="staff-nav-backdrop" aria-hidden="true" @click="menuOpen = false" />
-    <aside v-if="!isLogin" id="staff-navigation" class="staff-sidebar" :class="{ 'staff-sidebar--open': menuOpen }">
+    <header class="staff-mobile-header"><NuxtLink to="/staff" class="staff-brand"><strong>PUL<span>A</span>NG</strong><small>Operations</small></NuxtLink><button v-if="!isLogin" ref="menuButton" class="staff-menu-button" type="button" :aria-expanded="menuOpen" aria-controls="staff-navigation" @click="toggleMenu"><span aria-hidden="true">{{ menuOpen ? '×' : '☰' }}</span><span class="sr-only">{{ menuOpen ? 'Tutup navigasi' : 'Buka navigasi' }}</span></button></header>
+    <div v-if="menuOpen" class="staff-nav-backdrop" aria-hidden="true" @click="closeMenu()" />
+    <aside v-if="!isLogin" id="staff-navigation" ref="sidebar" class="staff-sidebar" :class="{ 'staff-sidebar--open': menuOpen }" :inert="desktopNavigation || menuOpen ? undefined : true" :aria-hidden="desktopNavigation || menuOpen ? undefined : true" :role="menuOpen && !desktopNavigation ? 'dialog' : undefined" :aria-modal="menuOpen && !desktopNavigation ? true : undefined" aria-label="Navigasi workspace staff" @keydown="onNavigationKeydown">
       <NuxtLink to="/staff" class="staff-brand staff-brand--desktop"><strong>PUL<span>A</span>NG</strong><small>Operations workspace</small></NuxtLink>
       <nav aria-label="Workspace staff"><section v-for="group in groups" v-show="group.links.some(link => can(link.capability))" :key="group.label" class="staff-nav-group"><h2>{{ group.label }}</h2><NuxtLink v-for="link in group.links.filter(item => can(item.capability))" :key="link.to" :to="link.to">{{ link.label }}</NuxtLink></section></nav>
       <div class="staff-sidebar-footer"><NuxtLink class="guest-link" to="/booking">Buka booking tamu ↗</NuxtLink><button type="button" class="staff-logout" @click="logout">Keluar workspace</button></div>
