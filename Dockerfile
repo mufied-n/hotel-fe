@@ -5,16 +5,18 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies based on package-lock.json
+# Install dependencies with npm cache mount
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --prefer-offline --no-audit
 
 # Copy application source code
 COPY . .
 
-# Build production bundle (.output/server & .output/public)
+# Build production bundle with build cache mount
 ENV NODE_ENV=production
-RUN npx nuxt prepare && npm run build
+RUN --mount=type=cache,target=/app/node_modules/.cache \
+    npx nuxt prepare && npm run build
 
 # ------------------------------------------------------------
 # Stage 2: Minimal Production Runtime

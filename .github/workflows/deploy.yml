@@ -36,14 +36,15 @@ jobs:
       - name: Prepare Nuxt definitions
         run: npm run prepare
 
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Run Nuxt Typecheck
-        run: npm run typecheck
-
-      - name: Run Unit Tests
-        run: npm run test:unit
+      - name: Run Quality Gate in Parallel (ESLint, Typecheck, Unit Tests)
+        run: |
+          npm run lint &
+          PID1=$!
+          npm run typecheck &
+          PID2=$!
+          npm run test:unit &
+          PID3=$!
+          wait $PID1 && wait $PID2 && wait $PID3
 
   # ============================================================================
   # Tahap 2: Build & Push Docker Image ke GitHub Container Registry (GHCR)
