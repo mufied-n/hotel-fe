@@ -18,6 +18,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
     "h3": "1.15.11",
     "nuxt": "4.5.2",
     "vue": "3.5.43",

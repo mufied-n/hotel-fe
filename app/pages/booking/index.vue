@@ -5,7 +5,7 @@ import { encodeSearch } from '~/utils/search-query'
 definePageMeta({ layout: 'booking' }); useSeoMeta({ title: 'Cari kamar' })
 const { setSearch } = useBookingDraft()
 const isApi = computed(() => useRuntimeConfig().public.bookingMode === 'api')
-const heroPhoto = 'https://pulangkeuttara.com/asset/rooms/hero.jpg'
+const heroPhoto = '/asset/rooms/hero.jpg'
 const heroFailed = ref(false)
 async function search(input: SearchInput) { setSearch(input); await navigateTo({ path: '/booking/results', query: encodeSearch(input) }) }
 </script>

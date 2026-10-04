@@ -25,7 +25,7 @@ function errorFrom(cause: unknown): BookingClientError {
 function resolvePhotos(room: BackendSearchResponse['results'][number]['room_variant']): { imageUrl: string, photos: RoomPhoto[] } {
   if (room.photos && room.photos.length > 0) {
     const firstUrl = room.photos[0]?.url || ''
-    if (firstUrl.startsWith('http') && !firstUrl.includes('/images/rooms/')) {
+    if ((firstUrl.startsWith('http') || firstUrl.startsWith('/asset/rooms/')) && !firstUrl.includes('/images/rooms/')) {
       return {
         imageUrl: firstUrl,
         photos: room.photos.map(p => ({ url: p.url, alt: p.alt || room.name })),

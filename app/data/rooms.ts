@@ -1,48 +1,48 @@
 import type { RoomFamily, RoomPhoto } from '~/types/booking'
 
 const BAY_PHOTOS: RoomPhoto[] = [
-  { url: 'https://pulangkeuttara.com/asset/rooms/bay/1.jpg', alt: 'Deluxe Bay Window - Tempat tidur dan bay window' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/bay/2.jpg', alt: 'Deluxe Bay Window - Sudut bay window dan cahaya alami' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/bay/3.jpg', alt: 'Deluxe Bay Window - Sudut santai' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/bay/4.jpg', alt: 'Deluxe Bay Window - Kamar mandi dan shower' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/bay/5.jpg', alt: 'Deluxe Bay Window - Detail seni interior' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/bay/6.jpg', alt: 'Deluxe Bay Window - Tata ruang kamar' },
+  { url: '/asset/rooms/bay/1.jpg', alt: 'Deluxe Bay Window - Tempat tidur dan bay window' },
+  { url: '/asset/rooms/bay/2.jpg', alt: 'Deluxe Bay Window - Sudut bay window dan cahaya alami' },
+  { url: '/asset/rooms/bay/3.jpg', alt: 'Deluxe Bay Window - Sudut santai' },
+  { url: '/asset/rooms/bay/4.jpg', alt: 'Deluxe Bay Window - Kamar mandi dan shower' },
+  { url: '/asset/rooms/bay/5.jpg', alt: 'Deluxe Bay Window - Detail seni interior' },
+  { url: '/asset/rooms/bay/6.jpg', alt: 'Deluxe Bay Window - Tata ruang kamar' },
 ]
 
 const BALCONY_PHOTOS: RoomPhoto[] = [
-  { url: 'https://pulangkeuttara.com/asset/rooms/balcony/1.jpg', alt: 'Deluxe Balcony - Ruang tidur dan suasana balkon' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/balcony/2.jpg', alt: 'Deluxe Balcony - Sudut interior dan tempat tidur' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/balcony/3.jpg', alt: 'Deluxe Balcony - Area santai balkon luar' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/balcony/4.jpg', alt: 'Deluxe Balcony - Kamar mandi modern' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/balcony/5.jpg', alt: 'Deluxe Balcony - Detail karya seni kamar' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/balcony/6.jpg', alt: 'Deluxe Balcony - Pemandangan ruang keseluruhan' },
+  { url: '/asset/rooms/balcony/1.jpg', alt: 'Deluxe Balcony - Ruang tidur dan suasana balkon' },
+  { url: '/asset/rooms/balcony/2.jpg', alt: 'Deluxe Balcony - Sudut interior dan tempat tidur' },
+  { url: '/asset/rooms/balcony/3.jpg', alt: 'Deluxe Balcony - Area santai balkon luar' },
+  { url: '/asset/rooms/balcony/4.jpg', alt: 'Deluxe Balcony - Kamar mandi modern' },
+  { url: '/asset/rooms/balcony/5.jpg', alt: 'Deluxe Balcony - Detail karya seni kamar' },
+  { url: '/asset/rooms/balcony/6.jpg', alt: 'Deluxe Balcony - Pemandangan ruang keseluruhan' },
 ]
 
 const EXEC_PHOTOS: RoomPhoto[] = [
-  { url: 'https://pulangkeuttara.com/asset/rooms/exec/1.jpg', alt: 'Executive Suite - Kamar tidur utama king bed' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/exec/2.jpg', alt: 'Executive Suite - Ruang tamu terpisah dan sofa' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/exec/3.jpg', alt: 'Executive Suite - Area kerja dan dekorasi' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/exec/4.jpg', alt: 'Executive Suite - Balkon dengan pemandangan kota' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/exec/5.jpg', alt: 'Executive Suite - Kamar mandi luas dan amenitas premium' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/exec/6.jpg', alt: 'Executive Suite - Detail interior desainer' },
+  { url: '/asset/rooms/exec/1.jpg', alt: 'Executive Suite - Kamar tidur utama king bed' },
+  { url: '/asset/rooms/exec/2.jpg', alt: 'Executive Suite - Ruang tamu terpisah dan sofa' },
+  { url: '/asset/rooms/exec/3.jpg', alt: 'Executive Suite - Area kerja dan dekorasi' },
+  { url: '/asset/rooms/exec/4.jpg', alt: 'Executive Suite - Balkon dengan pemandangan kota' },
+  { url: '/asset/rooms/exec/5.jpg', alt: 'Executive Suite - Kamar mandi luas dan amenitas premium' },
+  { url: '/asset/rooms/exec/6.jpg', alt: 'Executive Suite - Detail interior desainer' },
 ]
 
 const SUITE_PHOTOS: RoomPhoto[] = [
-  { url: 'https://pulangkeuttara.com/asset/rooms/suite/1.jpg', alt: 'Suite Room - Area tidur luas dan lounge chair' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/suite/2.jpg', alt: 'Suite Room - Sudut baca dan area makan pribadi' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/suite/3.jpg', alt: 'Suite Room - Komposisi interior editorial dan balkon' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/suite/4.jpg', alt: 'Suite Room - Kamar mandi walk-in shower' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/suite/5.jpg', alt: 'Suite Room - Furnitur seni dan pencahayaan' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/suite/6.jpg', alt: 'Suite Room - Tata ruang terbuka dan hangat' },
+  { url: '/asset/rooms/suite/1.jpg', alt: 'Suite Room - Area tidur luas dan lounge chair' },
+  { url: '/asset/rooms/suite/2.jpg', alt: 'Suite Room - Sudut baca dan area makan pribadi' },
+  { url: '/asset/rooms/suite/3.jpg', alt: 'Suite Room - Komposisi interior editorial dan balkon' },
+  { url: '/asset/rooms/suite/4.jpg', alt: 'Suite Room - Kamar mandi walk-in shower' },
+  { url: '/asset/rooms/suite/5.jpg', alt: 'Suite Room - Furnitur seni dan pencahayaan' },
+  { url: '/asset/rooms/suite/6.jpg', alt: 'Suite Room - Tata ruang terbuka dan hangat' },
 ]
 
 const FAMILY_PHOTOS: RoomPhoto[] = [
-  { url: 'https://pulangkeuttara.com/asset/rooms/family/1.jpg', alt: 'Family Suite - Ruang kumpul keluarga yang lapang' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/family/2.jpg', alt: 'Family Suite - Kamar tidur utama king bed' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/family/3.jpg', alt: 'Family Suite - Kamar tidur kedua twin bed' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/family/4.jpg', alt: 'Family Suite - Area duduk bersama dan meja makan' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/family/5.jpg', alt: 'Family Suite - Kamar mandi ganda untuk keluarga' },
-  { url: 'https://pulangkeuttara.com/asset/rooms/family/6.jpg', alt: 'Family Suite - Interior ramah keluarga' },
+  { url: '/asset/rooms/family/1.jpg', alt: 'Family Suite - Ruang kumpul keluarga yang lapang' },
+  { url: '/asset/rooms/family/2.jpg', alt: 'Family Suite - Kamar tidur utama king bed' },
+  { url: '/asset/rooms/family/3.jpg', alt: 'Family Suite - Kamar tidur kedua twin bed' },
+  { url: '/asset/rooms/family/4.jpg', alt: 'Family Suite - Area duduk bersama dan meja makan' },
+  { url: '/asset/rooms/family/5.jpg', alt: 'Family Suite - Kamar mandi ganda untuk keluarga' },
+  { url: '/asset/rooms/family/6.jpg', alt: 'Family Suite - Interior ramah keluarga' },
 ]
 
 export const ROOM_PHOTOS: Record<string, RoomPhoto[]> = {
