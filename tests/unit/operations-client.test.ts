@@ -34,4 +34,17 @@ describe('operations mock client', () => {
     await client.moveRoom('demo-stay-001', { targetRoomNumber: '305', reasonCategory: 'guest_request', notes: '' })
     expect(await client.getRoomMoves('demo-stay-001')).toHaveLength(2)
   })
+
+  it('validates voucher tokens and rejects tampered signatures', async () => {
+    const client = createMockOperationsClient()
+    const verified = await client.verifyVoucher({ ref: 'PKU-20261003-BKE2E001', token: 'valid-token-signature' })
+    expect(verified.valid).toBe(true)
+    expect(verified.verificationStatus).toBe('SIGNATURE_VERIFIED')
+    expect(verified.reference).toBe('PKU-20261003-BKE2E001')
+
+    await expect(client.verifyVoucher({ ref: 'PKU-20261003-BKE2E001', token: 'tampered_signature' }))
+      .rejects.toMatchObject({ code: 'INVALID_QR_SIGNATURE' })
+    await expect(client.verifyVoucher({ ref: '', token: '' }))
+      .rejects.toMatchObject({ code: 'MISSING_PARAMETERS' })
+  })
 })

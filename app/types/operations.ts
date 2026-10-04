@@ -31,6 +31,22 @@ export type PaymentCaseStatus = 'open' | 'investigating' | 'resolved' | 'dismiss
 export interface PaymentCase { id: string, bookingId?: string, caseType: string, status: PaymentCaseStatus, amountMinor: number, currency: string, providerReference: string, notes: string, resolvedBy?: string, resolvedAt?: string, resolutionAction?: string, createdAt: string, updatedAt: string }
 export interface FinanceCases { total: number, cases: PaymentCase[] }
 export interface RefundResult { id: string, bookingId: string, referenceId: string, amountMinor: number, currency: string, reason: string, status: string, createdAt: string }
+export interface VoucherVerificationResult {
+  valid: boolean
+  verificationStatus: string
+  bookingId: string
+  reference: string
+  guestName: string
+  guestEmail: string
+  guestPhone: string
+  roomTypeName: string
+  checkIn: string
+  checkOut: string
+  numRooms: number
+  numGuests: number
+  status: string
+  totalPaidIdr: number
+}
 
 export class OperationsError extends Error {
   constructor(public code: string, message: string, public status = 500) { super(message); this.name = 'OperationsError' }
@@ -50,4 +66,5 @@ export interface OperationsClient {
   getFinanceCases(status?: string, limit?: number): Promise<FinanceCases>
   resolveCase(caseId: string, action: string, notes: string): Promise<void>
   createRefund(input: { bookingId: string, amountMinor: number, reason: string }): Promise<RefundResult>
+  verifyVoucher(params: { ref: string, token: string, id?: string }): Promise<VoucherVerificationResult>
 }

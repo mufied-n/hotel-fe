@@ -24,6 +24,7 @@ async function load() {
 }
 async function applyFilters() { await navigateTo({ path: route.path, query: { ...preserveOperationsQAQuery(route.query), ...encodeStaffFilterQuery(schema, { floor: filters.floor, status: filters.status, room_type: filters.roomTypeId }) } }, { replace: true }); await load() }
 async function resetFilters() { Object.assign(filters, { floor: 0, status: '', roomTypeId: '' }); await applyFilters() }
+async function selectFloor(floor: number) { filters.floor = floor; await applyFilters() }
 function edit(room: OperationalRoom) { selected.value = room; nextStatus.value = room.status === 'vacant_dirty' ? 'cleaning' : room.status === 'cleaning' ? 'vacant_clean' : room.status === 'vacant_clean' ? 'inspected' : room.status; notes.value = room.maintenanceNotes }
 async function updateStatus() {
   if (!selected.value) return; submitting.value = true; error.value = ''; try { await client.updateRoomStatus(selected.value.roomNumber, nextStatus.value, notes.value); notice.value = `Simulasi status kamar ${selected.value.roomNumber} diperbarui.`; selected.value = null; await load() }
@@ -41,8 +42,63 @@ onMounted(load); onBeforeUnmount(requests.invalidate)
 
 <template><div class="container ops-page"><StaffPageHeader eyebrow="Operasional kamar" title="Housekeeping board" description="Ringkasan mengikuti filter aktif. Bersih masih memerlukan inspeksi sebelum check-in." />
   <UiInlineAlert v-if="notice" tone="info" live>{{ notice }}</UiInlineAlert><UiInlineAlert v-if="error && board" tone="error" live>{{ error }}</UiInlineAlert>
+  <div class="quick-floor-bar">
+    <span class="quick-floor-label">Lantai:</span>
+    <div class="floor-pills">
+      <button
+        v-for="fl in [0, 1, 2, 3, 4, 5]"
+        :key="fl"
+        type="button"
+        class="floor-pill"
+        :class="{ 'floor-pill--active': filters.floor === fl }"
+        @click="selectFloor(fl)"
+      >
+        {{ fl === 0 ? 'Semua' : `Lantai ${fl}` }}
+      </button>
+    </div>
+  </div>
   <StaffFilterBar :active="activeFilters" :busy="loading" :result-label="board ? `${board.totalRooms} kamar pada hasil filter` : ''" @apply="applyFilters" @reset="resetFilters"><div class="field"><label for="floor">Lantai</label><input id="floor" v-model.number="filters.floor" type="number" min="0" placeholder="Semua" /></div><div class="field"><label for="hk-status">Status</label><select id="hk-status" v-model="filters.status"><option value="">Semua</option><option v-for="status in statuses" :key="status" :value="status">{{ cleanlinessLabels[status] }}</option></select></div><div class="field"><label for="room-type">ID tipe kamar</label><input id="room-type" v-model.trim="filters.roomTypeId" /></div></StaffFilterBar><StaffFreshnessStatus v-if="board" :loading="loading" :stale="Boolean(error)" :last-success="lastSuccess" />
   <div v-if="board" class="ops-metrics"><div v-for="status in statuses" :key="status" class="ops-metric"><strong>{{ board.summary[status] || 0 }}</strong>{{ cleanlinessLabels[status] }}</div></div><p v-if="board" role="status">{{ board.totalRooms }} kamar pada hasil filter.</p>
   <div class="ops-split"><section><StaffDataState v-if="loading && !board" loading /><StaffDataState v-else-if="error && !board" :error="error" @retry="load" /><StaffDataState v-else-if="board && !board.rooms.length && activeFilters.length" no-results @reset="resetFilters" /><StaffDataState v-else-if="board && !board.rooms.length" empty empty-label="Belum ada kamar pada board." /><div v-else class="ops-grid ops-grid--rooms"><article v-for="room in board?.rooms" :key="room.roomNumber" class="ops-card" :class="{ 'ops-card--selected': selected?.roomNumber === room.roomNumber }"><div class="ops-card__top"><div><p class="eyebrow">Kamar {{ room.roomNumber }} · L{{ room.floor }}</p><h3>{{ room.roomTypeName }}</h3></div><StaffStatusBadge :label="cleanlinessLabels[room.status]" :status="room.status" /></div><p v-if="room.guestName">Tamu: {{ room.guestName }}</p><p v-if="room.maintenanceNotes" class="muted">{{ room.maintenanceNotes }}</p><small>Diperbarui {{ new Date(room.updatedAt).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) }}</small><BrandButton @click="edit(room)">{{ selected?.roomNumber === room.roomNumber ? 'Sedang dipilih' : 'Ubah status' }}</BrandButton></article></div></section>
     <aside class="stack"><form class="panel stack" @submit.prevent="markOOO"><p class="eyebrow">Khusus GM</p><h2>Rusak berat</h2><UiInlineAlert tone="info">Preview sample. Mutasi live tetap dikunci.</UiInlineAlert><div class="field"><label for="ooo-room">Nomor kamar</label><input id="ooo-room" v-model.trim="ooo.roomNumber" required /></div><div class="two-col"><div class="field"><label for="ooo-start">Mulai</label><input id="ooo-start" v-model="ooo.startDate" type="date" required /></div><div class="field"><label for="ooo-end">Selesai (eksklusif)</label><input id="ooo-end" v-model="ooo.endDate" type="date" required /></div></div><div class="field"><label for="ooo-reason">Alasan</label><textarea id="ooo-reason" v-model="ooo.reason" required rows="3" /></div><BrandButton type="submit" :loading="submitting" :disabled="apiMode">Simpan simulasi OOO</BrandButton></form></aside>
   </div><StaffDetailDrawer id="housekeeping-detail" :open="Boolean(selected)" :title="selected ? `Kamar ${selected.roomNumber}` : 'Detail kamar'" eyebrow="Housekeeping" :busy="submitting" @close="selected = null"><form v-if="selected" class="stack" @submit.prevent="updateStatus"><div class="ops-card"><div class="ops-card__top"><div><p class="eyebrow">Lantai {{ selected.floor }}</p><h3>{{ selected.roomTypeName }}</h3></div><StaffStatusBadge :label="cleanlinessLabels[selected.status]" :status="selected.status" /></div><p v-if="selected.guestName">Tamu: {{ selected.guestName }}</p><p class="muted">{{ selected.maintenanceNotes || 'Tanpa catatan maintenance.' }}</p><small>Diperbarui oleh {{ selected.updatedBy }}</small></div><UiInlineAlert v-if="apiMode" tone="info">Data live dapat dibaca. Mutation status masih dikunci sampai gate operasional diaktifkan.</UiInlineAlert><div class="field"><label for="next-status">Status berikutnya</label><select id="next-status" v-model="nextStatus"><option v-for="status in statuses" :key="status" :value="status">{{ cleanlinessLabels[status] }}</option></select></div><div class="field"><label for="status-notes">Catatan</label><textarea id="status-notes" v-model="notes" rows="4" /></div><UiInlineAlert tone="info">Perubahan: {{ cleanlinessLabels[selected.status] }} → {{ cleanlinessLabels[nextStatus] }}.</UiInlineAlert><div class="ops-actions"><BrandButton type="submit" dark :loading="submitting" :disabled="apiMode">Simpan simulasi</BrandButton><BrandButton :disabled="submitting" @click="selected = null">Batal</BrandButton></div></form></StaffDetailDrawer></div></template>
+
+<style scoped>
+.quick-floor-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-block: 10px;
+}
+.quick-floor-label {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.floor-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.floor-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease-standard);
+}
+.floor-pill:hover {
+  border-color: var(--brand);
+}
+.floor-pill--active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+</style>

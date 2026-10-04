@@ -29,5 +29,41 @@ export function createApiOperationsClient(): OperationsClient {
     getFinanceCases: async (status, limit) => toFinanceCases(await request<BackendFinanceCases>('/api/bff/staff/finance/cases', { query: { status, limit } })),
     resolveCase: (id, action, notes) => request(`/api/bff/staff/finance/cases/${encodeURIComponent(id)}/resolve`, { method: 'POST', headers: mutation, body: { action, notes } }),
     createRefund: async input => toRefund(await request<BackendRefundResponse>('/api/bff/staff/finance/refunds', { method: 'POST', headers: mutation, body: { booking_id: input.bookingId, amount_minor: input.amountMinor, reason: input.reason } })),
+    verifyVoucher: async (params) => {
+      const res = await request<{
+        valid?: boolean
+        verification_status?: string
+        booking_id?: string
+        reference?: string
+        guest_name?: string
+        guest_email?: string
+        guest_phone?: string
+        room_type_name?: string
+        check_in?: string
+        check_out?: string
+        num_rooms?: number
+        num_guests?: number
+        status?: string
+        total_paid_idr?: number
+      }>('/api/bff/staff/front-desk/verify-voucher', {
+        query: { ref: params.ref, token: params.token, id: params.id },
+      })
+      return {
+        valid: Boolean(res.valid),
+        verificationStatus: res.verification_status || 'SIGNATURE_VERIFIED',
+        bookingId: res.booking_id || '',
+        reference: res.reference || '',
+        guestName: res.guest_name || '',
+        guestEmail: res.guest_email || '',
+        guestPhone: res.guest_phone || '',
+        roomTypeName: res.room_type_name || '',
+        checkIn: res.check_in || '',
+        checkOut: res.check_out || '',
+        numRooms: res.num_rooms || 1,
+        numGuests: res.num_guests || 1,
+        status: res.status || '',
+        totalPaidIdr: res.total_paid_idr || 0,
+      }
+    },
   }
 }

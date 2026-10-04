@@ -22,8 +22,26 @@ const tone = computed(() => ['confirmed', 'checked_in', 'checked_out'].includes(
 <template>
   <section class="status" :class="`status--${tone}`" aria-live="polite">
     <div class="status-icon" aria-hidden="true">{{ tone === 'success' ? '✓' : tone === 'critical' ? '!' : '•' }}</div><div><p class="eyebrow">Booking · {{ booking.reference }}</p><h1>{{ content?.[0] || 'Status belum dikenali' }}</h1><p class="status-copy">{{ content?.[1] || 'Periksa kembali status booking ini sebelum melakukan tindakan lain.' }}</p></div>
+    <div v-if="['pending', 'pending_payment', 'processing'].includes(booking.status)" class="live-pulse">
+      <span class="pulse-dot" aria-hidden="true" />
+      <span>Memantau status pembayaran otomatis secara berkala</span>
+    </div>
     <BookingHoldTimer v-if="['pending', 'pending_payment'].includes(booking.status)" :server-time="booking.serverTime" :expires-at="booking.expiresAt" @elapsed="$emit('elapsed')" />
     <div class="actions"><a v-if="['pending', 'pending_payment'].includes(booking.status) && booking.paymentUrl" class="button" :href="booking.paymentUrl" rel="noopener noreferrer">Lanjut pembayaran</a><BrandButton v-if="['pending', 'pending_payment', 'confirmed'].includes(booking.status)" dark @click="$emit('cancel')">Batalkan booking</BrandButton><BrandButton v-if="['expired', 'failed'].includes(booking.status)" to="/booking">Cari kamar lagi</BrandButton><BrandButton to="/booking/my">Booking Saya</BrandButton><BrandButton to="/booking" dark>Kembali ke pencarian</BrandButton></div>
   </section>
 </template>
-<style scoped>.status { display: grid; grid-template-columns: auto 1fr; gap: 18px; padding: clamp(24px, 5vw, 54px); border-radius: 32px; background: var(--soft); }.status--success { background: #0d2417; color: #fff; }.status--critical { background: #260e0b; color: #fff; }.status--pending { border: 2px solid #000; }.status-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: var(--brand); color: #000; font-size: 1.5rem; font-weight: 900; }.status h1 { max-width: 900px; margin-bottom: 16px; }.status-copy { max-width: 62ch; font-size: 1.08rem; }.status :deep(.timer) { grid-column: 1 / -1; }.actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; } @media (max-width: 560px) { .status { grid-template-columns: 1fr; }.status-icon { width: 42px; height: 42px; }.actions { grid-column: 1; }.actions > * { width: 100%; } }</style>
+<style scoped>
+.status { display: grid; grid-template-columns: auto 1fr; gap: 18px; padding: clamp(24px, 5vw, 54px); border-radius: 32px; background: var(--soft); }
+.status--success { background: #0d2417; color: #fff; }
+.status--critical { background: #260e0b; color: #fff; }
+.status--pending { border: 2px solid #000; }
+.status-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: var(--brand); color: #000; font-size: 1.5rem; font-weight: 900; }
+.status h1 { max-width: 900px; margin-bottom: 16px; }
+.status-copy { max-width: 62ch; font-size: 1.08rem; }
+.status :deep(.timer) { grid-column: 1 / -1; }
+.live-pulse { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #2b8a3e; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(43, 138, 62, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(43, 138, 62, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(43, 138, 62, 0); } }
+.actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+@media (max-width: 560px) { .status { grid-template-columns: 1fr; } .status-icon { width: 42px; height: 42px; } .actions { grid-column: 1; } .actions > * { width: 100%; } }
+</style>

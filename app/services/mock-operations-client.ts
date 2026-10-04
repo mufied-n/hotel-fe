@@ -54,5 +54,28 @@ export function createMockOperationsClient(qa: OperationsQAControls = { delayMs:
     async getFinanceCases(status, limit = 50) { await wait('finance-cases'); const filtered = cases.filter(item => !status || item.status === status).slice(0, limit); return { total: filtered.length, cases: structuredClone(filtered) } },
     async resolveCase(caseId, action, notes) { await wait(); const item = cases.find(entry => entry.id === caseId); if (!item) throw new OperationsError('CASE_NOT_FOUND', 'Kasus tidak ditemukan.', 404); item.status = action === 'dismiss' ? 'dismissed' : 'resolved'; item.resolutionAction = action; item.notes = notes || item.notes; item.updatedAt = new Date().toISOString() },
     async createRefund(input): Promise<RefundResult> { await wait(); if (input.amountMinor <= 0) throw new OperationsError('INVALID_AMOUNT', 'Nominal harus lebih dari nol.', 400); if (input.reason.trim().length < 5) throw new OperationsError('REASON_REQUIRED', 'Alasan minimal 5 karakter.', 400); return { id: 'refund-sample-001', bookingId: input.bookingId, referenceId: 'RFND-SAMPLE', amountMinor: input.amountMinor, currency: 'IDR', reason: input.reason.trim(), status: 'pending', createdAt: new Date().toISOString() } },
+    async verifyVoucher(params) {
+      await wait()
+      if (!params.ref || !params.token) throw new OperationsError('MISSING_PARAMETERS', 'Parameter ref dan token wajib diisi.', 400)
+      if (params.token === 'invalid' || params.token === 'tampered_signature') {
+        throw new OperationsError('INVALID_QR_SIGNATURE', 'Tanda tangan digital voucher tidak sah atau telah dimodifikasi.', 400)
+      }
+      return {
+        valid: true,
+        verificationStatus: 'SIGNATURE_VERIFIED',
+        bookingId: params.id || 'bk-sample-001',
+        reference: params.ref,
+        guestName: 'Budi Santoso',
+        guestEmail: 'budi@example.com',
+        guestPhone: '+6281234567890',
+        roomTypeName: 'Deluxe Room',
+        checkIn: '2026-10-10',
+        checkOut: '2026-10-12',
+        numRooms: 1,
+        numGuests: 2,
+        status: 'confirmed',
+        totalPaidIdr: 1500000,
+      }
+    },
   }
 }

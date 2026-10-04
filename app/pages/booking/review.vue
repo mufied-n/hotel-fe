@@ -18,6 +18,7 @@ async function applyPromo() {
   try {
     const updatedSearch = { ...draft.value.search, promoCode: promoInput.value.trim().toUpperCase() }
     const item = draft.value.selectedQuote.items[0]
+    if (!item) return
     const numRooms = draft.value.search.occupancy.length
     const newQuote = await client.quote(updatedSearch, {
       variantIds: Array(numRooms).fill(item.variant.id),

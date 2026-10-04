@@ -28,7 +28,7 @@ const readable: Array<{ pattern: RegExp, target: (match: RegExpMatchArray) => st
   { pattern: /^revenue\/promos$/, target: () => '/api/v1/revenue/promos', queryKeys: [] },
   { pattern: /^revenue\/calendar$/, target: () => '/api/v1/revenue/calendar', queryKeys: ['start_date', 'end_date', 'room_type_id'] },
   { pattern: /^front-desk\/special-requests$/, target: () => '/api/v1/front-desk/special-requests', queryKeys: ['status', 'limit'] },
-  { pattern: /^front-desk\/verify-voucher$/, target: () => '/api/v1/front-desk/verify-voucher', queryKeys: ['code'] },
+  { pattern: /^front-desk\/verify-voucher$/, target: () => '/api/v1/front-desk/verify-voucher', queryKeys: ['ref', 'token', 'id', 'code'] },
 ]
 
 export function resolveStaffRoute(path: string, method: string): StaffRouteCapability | null {
