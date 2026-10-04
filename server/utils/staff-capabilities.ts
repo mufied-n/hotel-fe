@@ -32,6 +32,8 @@ const readable: Array<{ pattern: RegExp, target: (match: RegExpMatchArray) => st
 ]
 
 const mutable: Array<{ pattern: RegExp, methods: string[], target: (match: RegExpMatchArray) => string, queryKeys?: string[] }> = [
+  { pattern: /^catalog\/rooms$/, methods: ['POST'], target: () => '/api/v1/catalog/rooms' },
+  { pattern: /^catalog\/rooms\/([A-Za-z0-9_-]{1,80})$/, methods: ['PUT', 'DELETE'], target: match => `/api/v1/catalog/rooms/${match[1]}` },
   { pattern: /^revenue\/promos$/, methods: ['POST'], target: () => '/api/v1/revenue/promos' },
   { pattern: /^revenue\/promos\/([A-Za-z0-9_-]{1,80})$/, methods: ['PUT'], target: match => `/api/v1/revenue/promos/${match[1]}` },
   { pattern: /^revenue\/calendar\/bulk$/, methods: ['PUT'], target: () => '/api/v1/revenue/calendar/bulk' },

@@ -275,3 +275,25 @@ test('supports editing and removing promos in staff workspace and guest checkout
   await expect(page.getByText('Kode promo berhasil dihapus.')).toBeVisible()
   await expect(page.getByText('Diskon Aktif')).toHaveCount(0)
 })
+
+test('staff catalog editor reorders, removes and saves photos in sample mode', async ({ page }) => {
+  await page.goto('/staff/catalog')
+  await expect(page.locator('html')).toHaveAttribute('data-nuxt-ready', 'true')
+  await expect(page.getByRole('heading', { name: 'Editor katalog' })).toBeVisible()
+  await expect(page.getByText('Sample editor')).toBeVisible()
+
+  const firstUrl = await page.getByLabel('URL foto 1').inputValue()
+  const secondUrl = await page.getByLabel('URL foto 2').inputValue()
+  await page.getByRole('button', { name: 'Turunkan foto 1' }).click()
+  await expect(page.getByLabel('URL foto 1')).toHaveValue(secondUrl)
+  await expect(page.getByLabel('URL foto 2')).toHaveValue(firstUrl)
+
+  await page.getByRole('button', { name: 'Hapus foto 2' }).click()
+  await expect(page.getByLabel('URL foto 6')).toHaveCount(0)
+  await expect(page.getByText('Belum disimpan').first()).toBeVisible()
+  await expect(page.getByText('Upload tersedia pada mode live')).toBeVisible()
+
+  await page.getByLabel('Harga dasar IDR').fill('950000')
+  await page.getByRole('button', { name: 'Simpan simulasi' }).click()
+  await expect(page.getByText(/tersimpan pada simulasi browser/)).toBeVisible()
+})

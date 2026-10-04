@@ -16,6 +16,10 @@ describe('staff BFF allowlist', () => {
     expect(resolveStaffRoute('revenue/promos/PULANG10', 'PUT')?.upstream).toBe('/api/v1/revenue/promos/PULANG10')
     expect(resolveStaffRoute('finance/refunds', 'POST')?.upstream).toBe('/api/v1/finance/refunds')
     expect(resolveStaffRoute('housekeeping/rooms/301/status', 'PUT')?.upstream).toBe('/api/v1/housekeeping/rooms/301/status')
+    expect(resolveStaffRoute('catalog/rooms', 'POST')?.upstream).toBe('/api/v1/catalog/rooms')
+    expect(resolveStaffRoute('catalog/rooms/sup-king', 'PUT')?.upstream).toBe('/api/v1/catalog/rooms/sup-king')
+    expect(resolveStaffRoute('catalog/rooms/sup-king', 'DELETE')?.upstream).toBe('/api/v1/catalog/rooms/sup-king')
+    expect(resolveStaffRoute('catalog/rooms/../x', 'PUT')).toBeNull()
   })
 
   it('denies unsupported methods, traversal and unknown resources', () => {
