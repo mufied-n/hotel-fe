@@ -23,6 +23,12 @@ const readable: Array<{ pattern: RegExp, target: (match: RegExpMatchArray) => st
   { pattern: /^catalog\/rooms$/, target: () => '/api/v1/catalog/rooms', queryKeys: [] },
   { pattern: /^catalog\/rooms\/([A-Za-z0-9-]{1,80})$/, target: match => `/api/v1/catalog/rooms/${match[1]}`, queryKeys: [] },
   { pattern: /^admin\/feature-flags$/, target: () => '/api/v1/admin/feature-flags', queryKeys: [] },
+  { pattern: /^staff\/channel-sync-issues$/, target: () => '/api/v1/staff/channel-sync-issues', queryKeys: ['status', 'limit'] },
+  { pattern: /^staff\/channel-partners\/([A-Za-z0-9_-]{1,80})$/, target: match => `/api/v1/staff/channel-partners/${match[1]}`, queryKeys: [] },
+  { pattern: /^revenue\/promos$/, target: () => '/api/v1/revenue/promos', queryKeys: [] },
+  { pattern: /^revenue\/calendar$/, target: () => '/api/v1/revenue/calendar', queryKeys: ['start_date', 'end_date', 'room_type_id'] },
+  { pattern: /^front-desk\/special-requests$/, target: () => '/api/v1/front-desk/special-requests', queryKeys: ['status', 'limit'] },
+  { pattern: /^front-desk\/verify-voucher$/, target: () => '/api/v1/front-desk/verify-voucher', queryKeys: ['code'] },
 ]
 
 export function resolveStaffRoute(path: string, method: string): StaffRouteCapability | null {

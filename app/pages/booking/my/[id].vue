@@ -71,7 +71,10 @@ onBeforeUnmount(() => { generation++ })
         </section>
         <section class="panel stack">
           <h2>Yang dapat dilakukan</h2><UiInlineAlert v-if="actions?.can_pay" tone="info">Booking ini masih dapat dibayar, tetapi link pembayaran belum dapat dipulihkan dari perangkat ini. Periksa status sebelum mencoba pembayaran lain.</UiInlineAlert>
-          <BrandButton v-if="actions?.can_download_receipt" :to="`/booking/my/${detail.id}/receipt`">Lihat receipt</BrandButton><a v-if="actions?.can_download_receipt" class="button button--dark" :href="`/api/bff/guest/bookings/${detail.id}/calendar`">Unduh kalender</a>
+          <BrandButton v-if="actions?.can_download_receipt" :to="`/booking/my/${detail.id}/receipt`">Lihat receipt</BrandButton>
+          <a v-if="actions?.can_download_receipt" class="button" :href="`/api/bff/guest/bookings/${detail.id}/voucher.pdf`">Unduh voucher (PDF)</a>
+          <a v-if="actions?.can_download_receipt" class="button" :href="`/api/bff/guest/bookings/${detail.id}/invoice.pdf`">Unduh invoice (PDF)</a>
+          <a v-if="actions?.can_download_receipt" class="button button--dark" :href="`/api/bff/guest/bookings/${detail.id}/calendar`">Unduh kalender (.ics)</a>
           <UiInlineAlert v-if="actions?.can_cancel" tone="info">Pembatalan mandiri belum tersedia untuk booking ini. Gunakan bantuan hotel bila perlu mengubah rencana.</UiInlineAlert><BrandButton to="/booking/my" dark>Kembali ke daftar</BrandButton>
         </section>
       </div>

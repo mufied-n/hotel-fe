@@ -7,6 +7,8 @@ describe('staff BFF allowlist', () => {
     expect(resolveStaffRoute('front-desk/daily-roster', 'GET')?.queryKeys).toEqual(['date'])
     expect(resolveStaffRoute('bookings/demo-001/room-moves', 'GET')?.upstream).toBe('/api/v1/bookings/demo-001/room-moves')
     expect(resolveStaffRoute('admin/feature-flags', 'GET')?.upstream).toBe('/api/v1/admin/feature-flags')
+    expect(resolveStaffRoute('staff/channel-sync-issues', 'GET')?.upstream).toBe('/api/v1/staff/channel-sync-issues')
+    expect(resolveStaffRoute('revenue/promos', 'GET')?.upstream).toBe('/api/v1/revenue/promos')
   })
 
   it('denies mutations, traversal and unknown resources', () => {
