@@ -123,7 +123,7 @@ jobs:
             echo "==> 3. Memeriksa status kesehatan aplikasi frontend..."
             sleep 5
             for i in {1..10}; do
-              if curl -s -f http://127.0.0.1:3000/booking > /dev/null; then
+              if curl -s -f http://127.0.0.1:3002/booking > /dev/null; then
                 echo "Layanan frontend sehat dan siap menerima lalu lintas!"
                 break
               fi
