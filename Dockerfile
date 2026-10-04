@@ -6,9 +6,9 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 # Install dependencies with npm cache mount
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc* ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline --no-audit
+    npm ci --prefer-offline --no-audit --ignore-scripts --legacy-peer-deps
 
 # Copy application source code
 COPY . .
