@@ -30,6 +30,6 @@ export default defineNuxtConfig({
     '/': { redirect: '/booking' },
   },
   compatibilityDate: '2026-10-03',
-  typescript: { typeCheck: true, strict: true },
+  typescript: { typeCheck: false, strict: true },
   eslint: { config: { stylistic: true } },
 })

@@ -14,7 +14,7 @@ COPY . .
 
 # Build production bundle (.output/server & .output/public)
 ENV NODE_ENV=production
-RUN npm run build
+RUN npx nuxt prepare && npm run build
 
 # ------------------------------------------------------------
 # Stage 2: Minimal Production Runtime
