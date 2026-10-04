@@ -11,6 +11,7 @@ const actions = ref<GuestAllowedActions | null>(null)
 const refund = ref<GuestRefundStatus | null>(null)
 const pending = ref(false)
 const error = ref('')
+const paymentUrl = ref<string | undefined>()
 const refundState = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
 const refundError = ref('')
 let generation = 0
@@ -42,6 +43,13 @@ async function load() {
     const result = await $fetch<{ booking: GuestBookingDetail, allowed_actions: GuestAllowedActions }>(`/api/bff/guest/bookings/${id}`)
     if (current !== generation) return
     detail.value = result.booking; actions.value = result.allowed_actions
+    if (result.allowed_actions.can_pay) {
+      try {
+        const recovery = await $fetch<{ payment_url?: string }>(`/api/bff/guest/bookings/${id}/payment`)
+        if (current === generation) paymentUrl.value = recovery.payment_url
+      }
+      catch { if (current === generation) paymentUrl.value = undefined }
+    }
     await loadRefund(id, current)
   }
   catch (cause) {
@@ -70,7 +78,11 @@ onBeforeUnmount(() => { generation++ })
           <BookingRefundStatusPanel :state="refundState" :refund="refund" :error="refundError" @retry="loadRefund()" />
         </section>
         <section class="panel stack">
-          <h2>Yang dapat dilakukan</h2><UiInlineAlert v-if="actions?.can_pay" tone="info">Booking ini masih dapat dibayar, tetapi link pembayaran belum dapat dipulihkan dari perangkat ini. Periksa status sebelum mencoba pembayaran lain.</UiInlineAlert>
+          <h2>Yang dapat dilakukan</h2>
+          <template v-if="actions?.can_pay">
+            <a v-if="paymentUrl" class="button" :href="paymentUrl" rel="noopener noreferrer">Lanjut pembayaran</a>
+            <UiInlineAlert v-else tone="info">Booking ini masih dapat dibayar. Silakan periksa status sebelum mencoba pembayaran lain.</UiInlineAlert>
+          </template>
           <BrandButton v-if="actions?.can_download_receipt" :to="`/booking/my/${detail.id}/receipt`">Lihat receipt</BrandButton>
           <a v-if="actions?.can_download_receipt" class="button" :href="`/api/bff/guest/bookings/${detail.id}/voucher.pdf`">Unduh voucher (PDF)</a>
           <a v-if="actions?.can_download_receipt" class="button" :href="`/api/bff/guest/bookings/${detail.id}/invoice.pdf`">Unduh invoice (PDF)</a>
