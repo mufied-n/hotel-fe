@@ -2,6 +2,11 @@
   "name": "pulang-booking-demo",
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mufied-n/hotel-fe.git"
+  },
+  "homepage": "https://github.com/mufied-n/hotel-fe#readme",
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",

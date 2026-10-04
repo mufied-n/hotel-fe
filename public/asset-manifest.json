@@ -1,9 +1,58 @@
 {
-  "status": "placeholder-only",
-  "updatedAt": "2026-10-03",
-  "assets": [],
+  "status": "remote-official-cdn",
+  "updatedAt": "2026-10-05",
+  "provider": "https://pulangkeuttara.com",
+  "assets": [
+    {
+      "category": "hero",
+      "type": "image/jpeg",
+      "url": "https://pulangkeuttara.com/asset/rooms/hero.jpg",
+      "dimensions": "1600x2400",
+      "description": "Suasana kamar dan arsitektur PULANG ke UTTARA (Canon EOS R6m2)"
+    },
+    {
+      "category": "rooms-deluxe-bay",
+      "type": "image/jpeg",
+      "count": 6,
+      "urlPattern": "https://pulangkeuttara.com/asset/rooms/bay/{1..6}.jpg",
+      "dimensions": "2400x1597",
+      "description": "Koleksi foto Deluxe Bay Window (Nikon Z 6_2)"
+    },
+    {
+      "category": "rooms-deluxe-balcony",
+      "type": "image/jpeg",
+      "count": 6,
+      "urlPattern": "https://pulangkeuttara.com/asset/rooms/balcony/{1..6}.jpg",
+      "dimensions": "2400x1597",
+      "description": "Koleksi foto Deluxe Balcony (Nikon Z 6_2)"
+    },
+    {
+      "category": "rooms-executive-suite",
+      "type": "image/jpeg",
+      "count": 6,
+      "urlPattern": "https://pulangkeuttara.com/asset/rooms/exec/{1..6}.jpg",
+      "dimensions": "2400x1597",
+      "description": "Koleksi foto Executive Suite (Nikon Z 6_2)"
+    },
+    {
+      "category": "rooms-suite",
+      "type": "image/jpeg",
+      "count": 6,
+      "urlPattern": "https://pulangkeuttara.com/asset/rooms/suite/{1..6}.jpg",
+      "dimensions": "2400x1597",
+      "description": "Koleksi foto Suite Room (Nikon Z 6_2)"
+    },
+    {
+      "category": "rooms-family-suite",
+      "type": "image/jpeg",
+      "count": 6,
+      "urlPattern": "https://pulangkeuttara.com/asset/rooms/family/{1..6}.jpg",
+      "dimensions": "2400x1597",
+      "description": "Koleksi foto Family Suite (Nikon Z 6_2)"
+    }
+  ],
   "limitations": [
-    "Logo, brand font, and room photography are awaiting an approved owner handoff.",
-    "CSS placeholders are used and are visibly labelled in the UI."
+    "Photos are served via official website CDN endpoint.",
+    "Graceful fallback to placeholder state is preserved in case of network unavailability."
   ]
 }

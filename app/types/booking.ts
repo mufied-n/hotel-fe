@@ -4,8 +4,9 @@ export interface Money { amount: number, currency: 'IDR', exponent: 0 | 2 }
 export interface Occupancy { roomIndex: number, adults: number, childrenAges: number[] }
 export interface SearchInput { checkIn: DateOnly, checkOut: DateOnly, occupancy: Occupancy[], promoCode?: string, locale: 'id-ID', currency: 'IDR' }
 export interface Hotel { name: string, address: string, email: string, phone: string, timezone: 'Asia/Jakarta', checkInTime: string, checkOutTime: string }
-export interface RoomVariant { id: string, familyId: string, name: string, bed: string, capacity: number, capacityStatus: 'sample' | 'verified', features: string[], imageAlt: string, startingPrice?: Money, availableRooms?: number }
-export interface RoomFamily { id: string, name: string, description: string, variants: RoomVariant[] }
+export interface RoomPhoto { url: string, alt: string }
+export interface RoomVariant { id: string, familyId: string, name: string, bed: string, capacity: number, capacityStatus: 'sample' | 'verified', features: string[], imageAlt: string, imageUrl?: string, photos?: RoomPhoto[], startingPrice?: Money, availableRooms?: number }
+export interface RoomFamily { id: string, name: string, description: string, imageUrl?: string, photos?: RoomPhoto[], variants: RoomVariant[] }
 export interface RatePlan { id: string, name: string, breakfast: boolean, benefits: string[], policy: string }
 export interface QuoteItem { roomIndex: number, occupancy: Occupancy, variant: RoomVariant, ratePlan: RatePlan, original: Money, discount: Money, subtotal: Money, taxes: Money, service: Money, total: Money }
 export interface PolicySnapshot { cancellation: string, payment: string, noShow: string, chargesIncluded: boolean }

@@ -8,15 +8,41 @@ const emit = defineEmits<{ select: [selection: { variantId: string, ratePlanId: 
 const route = useRoute()
 const localVariant = ref('')
 const localRate = ref('')
+const imageFailed = ref(false)
 watch(() => [props.selectedVariant, props.selectedRate] as const, ([variant, rate]) => { if (variant && props.family.variants.some(item => item.id === variant)) { localVariant.value = variant; localRate.value = rate || '' } }, { immediate: true })
 const activeVariant = computed(() => props.family.variants.find(item => item.id === localVariant.value) || props.family.variants[0])
+const activePhoto = computed(() => activeVariant.value?.imageUrl || props.family.imageUrl || '')
+watch(activePhoto, () => { imageFailed.value = false })
 const isSelected = computed(() => Boolean(props.selectedVariant && props.family.variants.some(item => item.id === props.selectedVariant)))
 const detailTo = computed(() => ({ path: `/booking/rooms/${activeVariant.value?.id}`, query: route.query }))
 function choose() { if (!props.disabled && localVariant.value && localRate.value) emit('select', { variantId: localVariant.value, ratePlanId: localRate.value }) }
 </script>
 <template>
   <article class="room-card panel" :class="{ 'room-card--selected': isSelected }">
-    <div class="room-media placeholder-image" role="img" :aria-label="activeVariant?.imageAlt"><div class="room-mark"><small>PULANG ROOM</small><strong>{{ family.name }}</strong></div><span>Foto resmi menunggu handoff</span></div>
+    <div class="room-media" :class="{ 'placeholder-image': imageFailed || !activePhoto }">
+      <template v-if="activePhoto && !imageFailed">
+        <img
+          class="room-photo"
+          :src="activePhoto"
+          :alt="activeVariant?.imageAlt || family.name"
+          loading="lazy"
+          @error="imageFailed = true"
+        >
+        <div class="room-overlay">
+          <div class="room-mark">
+            <small>PULANG ROOM</small>
+            <strong>{{ family.name }}</strong>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="room-mark">
+          <small>PULANG ROOM</small>
+          <strong>{{ family.name }}</strong>
+        </div>
+        <span>Foto resmi menunggu handoff</span>
+      </template>
+    </div>
     <div class="room-copy">
       <div>
         <p class="eyebrow">{{ roomCount || 1 }} kamar · hingga {{ Math.max(...family.variants.map(item => item.capacity)) }} tamu/kamar</p>
@@ -36,7 +62,7 @@ function choose() { if (!props.disabled && localVariant.value && localRate.value
   </article>
 </template>
 <style scoped>
-.room-card { display: grid; gap: 24px; overflow: hidden; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow-small); transition: border-color var(--motion-feedback) var(--ease-standard), box-shadow var(--motion-feedback) var(--ease-standard); }.room-card--selected { border-color: var(--brand); box-shadow: 0 18px 48px rgb(245 129 50 / 20%); }.room-card:nth-of-type(odd) { background: #000; color: #fff; }.room-media { min-height: 360px; align-items: end; justify-items: start; }.room-mark { display: grid; justify-items: start; text-align: left; }.room-mark small { font-weight: 900; letter-spacing: .12em; }.room-mark strong { max-width: 8ch; font-size: clamp(2.5rem, 7vw, 5rem); line-height: .83; letter-spacing: -.06em; text-transform: uppercase; }.room-copy { display: grid; align-content: start; gap: 16px; }.room-copy h3 { margin-bottom: 10px; }.field-label { display: grid; gap: 8px; font-weight: 900; }.field-label select { width: 100%; border: 1px solid #777; border-radius: 14px; background: #fff; color: #000; padding: 10px 12px; }.rates { border: 0; padding: 0; display: grid; gap: 9px; }.rates legend { font-weight: 900; margin-bottom: 6px; }.rates label { display: flex; align-items: flex-start; gap: 11px; border: 1px solid #888; border-radius: 16px; padding: 13px; cursor: pointer; transition: border-color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard), transform var(--motion-press) var(--ease-standard); }.rates label:active { transform: scale(.99); }.rates label:has(input:checked) { border-color: var(--brand); background: rgb(245 129 50 / 9%); box-shadow: inset 0 0 0 1px var(--brand); }.rates input { min-height: auto; width: 20px; height: 20px; accent-color: var(--brand); }.rates span { display: grid; gap: 3px; }.rates small { opacity: .78; }.starting-price { display: grid; gap: 2px; margin: 0; }.starting-price span, .starting-price small { color: inherit; opacity: .72; }.starting-price strong { font-size: 1.55rem; font-variant-numeric: tabular-nums; }.room-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }.selected { margin: 0; color: var(--success); font-weight: 900; animation: selected-in var(--motion-feedback) var(--ease-emphasized); }.room-card:nth-of-type(odd) .selected { color: #9ff0af; }.room-detail-link { min-height: 44px; display: inline-flex; align-items: center; font-weight: 900; text-decoration-thickness: 2px; text-underline-offset: 4px; } @keyframes selected-in { from { opacity: 0; transform: translateY(6px); } }
+.room-card { display: grid; gap: 24px; overflow: hidden; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow-small); transition: border-color var(--motion-feedback) var(--ease-standard), box-shadow var(--motion-feedback) var(--ease-standard); }.room-card--selected { border-color: var(--brand); box-shadow: 0 18px 48px rgb(245 129 50 / 20%); }.room-card:nth-of-type(odd) { background: #000; color: #fff; }.room-media { position: relative; min-height: 360px; overflow: hidden; border-radius: 24px; background: #111; display: grid; align-items: end; justify-items: start; isolation: isolate; }.room-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; transition: transform var(--motion-base) var(--ease-standard); }.room-card:hover .room-photo { transform: scale(1.03); }.room-overlay { position: absolute; inset: 0; z-index: 1; display: grid; align-items: end; padding: 24px; background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.85) 100%); color: #fff; pointer-events: none; }.room-mark { position: relative; z-index: 2; display: grid; justify-items: start; text-align: left; }.room-mark small { font-weight: 900; letter-spacing: .12em; color: var(--brand); }.room-card:nth-of-type(odd) .room-mark small { color: #fff; }.room-mark strong { max-width: 8ch; font-size: clamp(2.5rem, 7vw, 5rem); line-height: .83; letter-spacing: -.06em; text-transform: uppercase; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,0.5); }.room-copy { display: grid; align-content: start; gap: 16px; }.room-copy h3 { margin-bottom: 10px; }.field-label { display: grid; gap: 8px; font-weight: 900; }.field-label select { width: 100%; border: 1px solid #777; border-radius: 14px; background: #fff; color: #000; padding: 10px 12px; }.rates { border: 0; padding: 0; display: grid; gap: 9px; }.rates legend { font-weight: 900; margin-bottom: 6px; }.rates label { display: flex; align-items: flex-start; gap: 11px; border: 1px solid #888; border-radius: 16px; padding: 13px; cursor: pointer; transition: border-color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard), transform var(--motion-press) var(--ease-standard); }.rates label:active { transform: scale(.99); }.rates label:has(input:checked) { border-color: var(--brand); background: rgb(245 129 50 / 9%); box-shadow: inset 0 0 0 1px var(--brand); }.rates input { min-height: auto; width: 20px; height: 20px; accent-color: var(--brand); }.rates span { display: grid; gap: 3px; }.rates small { opacity: .78; }.starting-price { display: grid; gap: 2px; margin: 0; }.starting-price span, .starting-price small { color: inherit; opacity: .72; }.starting-price strong { font-size: 1.55rem; font-variant-numeric: tabular-nums; }.room-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }.selected { margin: 0; color: var(--success); font-weight: 900; animation: selected-in var(--motion-feedback) var(--ease-emphasized); }.room-card:nth-of-type(odd) .selected { color: #9ff0af; }.room-detail-link { min-height: 44px; display: inline-flex; align-items: center; font-weight: 900; text-decoration-thickness: 2px; text-underline-offset: 4px; } @keyframes selected-in { from { opacity: 0; transform: translateY(6px); } }
 .scarcity-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #fff0eb; color: #d9480f; font-size: 0.8rem; font-weight: 800; border: 1px solid #ffd8a8; margin-top: 6px; }
 .room-card:nth-of-type(odd) .scarcity-badge { background: #3b1812; color: #ff922b; border-color: #7b2d1c; }
 @media (min-width: 850px) { .room-card { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); }.room-card:nth-of-type(odd) .room-media { order: 2; } }

@@ -2,6 +2,11 @@
 
 Tanggal: 3 Oktober 2026 (Asia/Jakarta). Webapp demo sudah tersedia; implementasi API berikutnya direncanakan dalam paket integrasi. Source backend dikembangkan terpisah dan tidak diubah oleh pekerjaan dokumentasi FE ini.
 
+## Repositori
+
+* **Frontend:** [https://github.com/mufied-n/hotel-fe](https://github.com/mufied-n/hotel-fe)
+* **Backend:** [https://github.com/mufied-n/hotel-be](https://github.com/mufied-n/hotel-be)
+
 ## Mulai di sini
 
 1. [Design system resmi dan adaptasi booking](research/official-design-system.md).

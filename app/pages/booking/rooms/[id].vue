@@ -10,7 +10,40 @@ const route = useRoute(); const isApi = computed(() => useRuntimeConfig().public
 let roomGeneration = 0
 let availabilityGeneration = 0
 const { showIndicator: showRoomIndicator, isSlow: isRoomSlow } = usePendingFeedback(loading)
-function mockRoom(): BackendRoomVariant | null { const source = roomVariants.find(item => item.id === String(route.params.id)); if (!source) return null; return { id: source.id, code: source.id, name: source.name, family_name: source.familyId, bed_type: source.bed, room_size_sqm: 0, max_capacity: source.capacity, max_adults: source.capacity, max_children: 0, description: 'Detail kamar sample mengikuti data demo.', base_price_minor: source.startingPrice?.amount || 0, amenities: source.features, photos: [] } }
+const activePhotoIndex = ref(0)
+const currentPhoto = computed<{ url: string, alt: string }>(() => {
+  const list = room.value?.photos
+  if (!list || list.length === 0) return { url: '', alt: '' }
+  const photo = list[activePhotoIndex.value] || list[0]
+  return photo ? { url: photo.url, alt: photo.alt } : { url: '', alt: '' }
+})
+function prevPhoto() {
+  if (!room.value?.photos.length) return
+  activePhotoIndex.value = (activePhotoIndex.value - 1 + room.value.photos.length) % room.value.photos.length
+}
+function nextPhoto() {
+  if (!room.value?.photos.length) return
+  activePhotoIndex.value = (activePhotoIndex.value + 1) % room.value.photos.length
+}
+function mockRoom(): BackendRoomVariant | null {
+  const source = roomVariants.find(item => item.id === String(route.params.id))
+  if (!source) return null
+  return {
+    id: source.id,
+    code: source.id,
+    name: source.name,
+    family_name: source.familyId,
+    bed_type: source.bed,
+    room_size_sqm: 0,
+    max_capacity: source.capacity,
+    max_adults: source.capacity,
+    max_children: 0,
+    description: 'Detail kamar sample mengikuti data demo.',
+    base_price_minor: source.startingPrice?.amount || 0,
+    amenities: source.features,
+    photos: source.photos || (source.imageUrl ? [{ url: source.imageUrl, alt: source.imageAlt }] : []),
+  }
+}
 async function load() {
   const current = ++roomGeneration
   loading.value = true; error.value = ''; room.value = null
@@ -26,7 +59,7 @@ async function checkAvailability() {
   catch (cause) { if (current === availabilityGeneration) { const value = cause as { data?: { statusMessage?: string } }; availabilityError.value = value.data?.statusMessage || 'Ketersediaan belum dapat diperiksa.' } }
   finally { if (current === availabilityGeneration) availabilityPending.value = false }
 }
-watch(() => String(route.params.id), load, { immediate: true })
+watch(() => String(route.params.id), () => { activePhotoIndex.value = 0; load() }, { immediate: true })
 watch(() => [dates.checkIn, dates.checkOut], () => { availabilityGeneration++; availabilityPending.value = false; availability.value = null; availabilityError.value = '' })
 onBeforeUnmount(() => { roomGeneration++; availabilityGeneration++ })
 </script>
@@ -36,7 +69,33 @@ onBeforeUnmount(() => { roomGeneration++; availabilityGeneration++ })
     <div v-if="loading" class="room-loading" aria-busy="true"><div class="loading-state" role="status"><UiLoadingIndicator v-if="showRoomIndicator" /><strong>{{ isRoomSlow ? 'Detail kamar memerlukan waktu lebih lama…' : 'Memuat detail kamar…' }}</strong></div><UiSkeletonBlock v-if="showRoomIndicator" variant="media" /></div><Transition name="feedback"><UiInlineAlert v-if="error" tone="error" live>{{ error }}</UiInlineAlert></Transition>
     <template v-if="room">
       <header><div><p class="eyebrow">{{ room.family_name }}</p><h1>{{ room.name }}</h1></div><p class="lede">{{ room.description }}</p></header>
-      <div class="gallery" role="region" :aria-label="`Galeri ${room.name}`"><BookingRoomMedia v-for="photo in room.photos" :key="photo.url" :src="photo.url" :alt="photo.alt" /><div v-if="!room.photos.length" class="placeholder-image" role="img" :aria-label="`Foto ${room.name} belum tersedia`"><div class="gallery-mark">{{ room.name }}</div><span>Foto resmi menunggu handoff</span></div></div>
+      <div class="gallery" role="region" :aria-label="`Galeri ${room.name}`">
+        <template v-if="room.photos.length">
+          <div class="gallery-main">
+            <BookingRoomMedia :src="currentPhoto.url" :alt="currentPhoto.alt" />
+            <div v-if="room.photos.length > 1" class="gallery-controls">
+              <button type="button" class="gallery-nav-btn" aria-label="Foto sebelumnya" @click="prevPhoto">‹</button>
+              <span class="gallery-counter">{{ activePhotoIndex + 1 }} / {{ room.photos.length }}</span>
+              <button type="button" class="gallery-nav-btn" aria-label="Foto berikutnya" @click="nextPhoto">›</button>
+            </div>
+          </div>
+          <div v-if="room.photos.length > 1" class="gallery-thumbs" role="tablist" aria-label="Pilih foto kamar">
+            <button
+              v-for="(photo, idx) in room.photos"
+              :key="photo.url"
+              type="button"
+              class="thumb-btn"
+              :class="{ 'thumb-btn--active': idx === activePhotoIndex }"
+              :aria-label="`Lihat foto ${idx + 1}: ${photo.alt}`"
+              :aria-selected="idx === activePhotoIndex"
+              @click="activePhotoIndex = idx"
+            >
+              <img :src="photo.url" :alt="photo.alt" loading="lazy">
+            </button>
+          </div>
+        </template>
+        <div v-else class="placeholder-image" role="img" :aria-label="`Foto ${room.name} belum tersedia`"><div class="gallery-mark">{{ room.name }}</div><span>Foto resmi menunggu handoff</span></div>
+      </div>
       <div class="room-detail-grid">
         <section class="room-facts" aria-labelledby="about-room-title">
           <UiSectionReveal>
@@ -79,7 +138,7 @@ onBeforeUnmount(() => { roomGeneration++; availabilityGeneration++ })
   </div>
 </template>
 <style scoped>
-.room-detail { max-width: 1160px; display: grid; gap: 30px; }.room-loading { display: grid; gap: 16px; min-height: 300px; padding: 18px; border-radius: 28px; background: var(--soft); }.back-link { width: fit-content; min-height: 44px; display: inline-flex; align-items: center; font-weight: 900; text-underline-offset: 4px; }.room-detail header { display: grid; gap: 18px; }.room-detail header h1 { max-width: 850px; margin-bottom: 0; }.gallery { display: grid; gap: 12px; }.gallery .placeholder-image { width: 100%; min-height: min(68vh, 650px); max-height: 650px; object-fit: cover; border-radius: 28px; }.gallery-mark { align-self: end; justify-self: start; max-width: 8ch; font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; line-height: .83; letter-spacing: -.07em; text-align: left; text-transform: uppercase; }
+.room-detail { max-width: 1160px; display: grid; gap: 30px; }.room-loading { display: grid; gap: 16px; min-height: 300px; padding: 18px; border-radius: 28px; background: var(--soft); }.back-link { width: fit-content; min-height: 44px; display: inline-flex; align-items: center; font-weight: 900; text-underline-offset: 4px; }.room-detail header { display: grid; gap: 18px; }.room-detail header h1 { max-width: 850px; margin-bottom: 0; }.gallery { display: grid; gap: 14px; position: relative; }.gallery-main { position: relative; border-radius: 28px; overflow: hidden; background: var(--soft); }.gallery-controls { position: absolute; bottom: 20px; right: 20px; display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px; background: rgba(0,0,0,0.72); border-radius: 999px; backdrop-filter: blur(8px); color: #fff; z-index: 5; box-shadow: 0 4px 16px rgba(0,0,0,0.25); }.gallery-nav-btn { background: none; border: none; color: #fff; font-size: 1.5rem; line-height: 1; padding: 0 6px; cursor: pointer; transition: transform var(--motion-fast) var(--ease-standard); min-height: 32px; display: grid; place-items: center; }.gallery-nav-btn:hover { transform: scale(1.25); }.gallery-counter { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.05em; font-variant-numeric: tabular-nums; }.gallery-thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; max-width: 100%; }.thumb-btn { flex: 0 0 84px; height: 56px; padding: 0; border: 2px solid transparent; border-radius: 12px; overflow: hidden; background: #222; cursor: pointer; opacity: 0.65; transition: opacity var(--motion-fast) var(--ease-standard), border-color var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard); }.thumb-btn:hover { opacity: 0.9; }.thumb-btn--active { opacity: 1; border-color: var(--brand); transform: scale(1.02); }.thumb-btn img { width: 100%; height: 100%; object-fit: cover; }.gallery .placeholder-image { width: 100%; min-height: min(68vh, 650px); max-height: 650px; object-fit: cover; border-radius: 28px; }.gallery-mark { align-self: end; justify-self: start; max-width: 8ch; font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; line-height: .83; letter-spacing: -.07em; text-align: left; text-transform: uppercase; }
 .room-detail-grid { display: grid; gap: 32px; padding-top: 18px; }
 .room-facts { min-width: 0; padding: 8px 0; }
 .facts-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
