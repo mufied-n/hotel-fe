@@ -2,7 +2,8 @@ import type { BackendBooking, BackendCreateBookingResponse, BackendLockedQuote, 
 import type { BookingClient, QuoteSelection } from './booking-client'
 import { BookingClientError } from './booking-client'
 import { ratePlans } from '~/data/rate-plans'
-import type { ApiErrorCode, BookingDraft, BookingStatus, BookingStatusView, Occupancy, Quote, RoomFamily, RoomVariant, SearchInput, SearchResult } from '~/types/booking'
+import { ROOM_PHOTOS } from '~/data/rooms'
+import type { ApiErrorCode, BookingDraft, BookingStatus, BookingStatusView, Occupancy, Quote, RoomFamily, RoomPhoto, RoomVariant, SearchInput, SearchResult } from '~/types/booking'
 import { nightsBetween } from '~/utils/dates'
 import { rupiah } from '~/utils/money'
 
@@ -21,8 +22,48 @@ function errorFrom(cause: unknown): BookingClientError {
   })
 }
 
+function resolvePhotos(room: BackendSearchResponse['results'][number]['room_variant']): { imageUrl: string, photos: RoomPhoto[] } {
+  if (room.photos && room.photos.length > 0) {
+    const firstUrl = room.photos[0]?.url || ''
+    if (firstUrl.startsWith('http') && !firstUrl.includes('/images/rooms/')) {
+      return {
+        imageUrl: firstUrl,
+        photos: room.photos.map(p => ({ url: p.url, alt: p.alt || room.name })),
+      }
+    }
+  }
+
+  const code = (room.code || '').toLowerCase()
+  const family = (room.family_name || '').toLowerCase()
+
+  if (family.includes('balcony') || code.includes('dlx') || family.includes('deluxe')) {
+    const list = ROOM_PHOTOS['deluxe-balcony'] || []
+    return { imageUrl: list[0]?.url || '', photos: list }
+  }
+  if (family.includes('bay') || code.includes('sup') || family.includes('superior')) {
+    const list = ROOM_PHOTOS['deluxe-bay'] || []
+    return { imageUrl: list[0]?.url || '', photos: list }
+  }
+  if (family.includes('executive') || code.includes('exc')) {
+    const list = ROOM_PHOTOS['executive'] || []
+    return { imageUrl: list[0]?.url || '', photos: list }
+  }
+  if (family.includes('family') || code.includes('pste') || family.includes('presidential')) {
+    const list = ROOM_PHOTOS['family'] || []
+    return { imageUrl: list[0]?.url || '', photos: list }
+  }
+  if (family.includes('suite') || code.includes('jste')) {
+    const list = ROOM_PHOTOS['suite'] || []
+    return { imageUrl: list[0]?.url || '', photos: list }
+  }
+
+  const fallback = ROOM_PHOTOS['deluxe-balcony'] || []
+  return { imageUrl: fallback[0]?.url || '', photos: fallback }
+}
+
 function mapVariant(source: BackendSearchResponse['results'][number]): RoomVariant {
   const room = source.room_variant
+  const { imageUrl, photos } = resolvePhotos(room)
   return {
     id: room.id,
     familyId: room.family_name || room.code,
@@ -31,7 +72,9 @@ function mapVariant(source: BackendSearchResponse['results'][number]): RoomVaria
     capacity: room.max_capacity,
     capacityStatus: 'verified',
     features: room.amenities || [],
-    imageAlt: room.photos?.[0]?.alt || `Foto ${room.name} belum tersedia`,
+    imageAlt: room.photos?.[0]?.alt || `Foto ${room.name}`,
+    imageUrl,
+    photos,
     startingPrice: rupiah(source.total_price_minor),
     availableRooms: source.available_rooms,
   }
@@ -43,8 +86,19 @@ function groupRooms(response: BackendSearchResponse) {
     const variant = mapVariant(item)
     const key = variant.familyId
     const current = groups.get(key)
-    if (current) current.variants.push(variant)
-    else groups.set(key, { id: key, name: item.room_variant.family_name || item.room_variant.name, description: item.room_variant.description, variants: [variant] })
+    if (current) {
+      current.variants.push(variant)
+    }
+    else {
+      groups.set(key, {
+        id: key,
+        name: item.room_variant.family_name || item.room_variant.name,
+        description: item.room_variant.description,
+        imageUrl: variant.imageUrl,
+        photos: variant.photos,
+        variants: [variant],
+      })
+    }
   }
   return [...groups.values()]
 }

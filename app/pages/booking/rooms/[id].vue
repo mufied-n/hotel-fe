@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BackendAvailabilityResponse, BackendRoomVariant } from '~~/shared/types/backend'
-import { roomVariants } from '~/data/rooms'
+import { ROOM_PHOTOS, roomVariants } from '~/data/rooms'
 import { addDays, todayInJakarta } from '~/utils/dates'
 import { formatMoney, rupiah } from '~/utils/money'
 import { decodeSearch } from '~/utils/search-query'
@@ -25,6 +25,31 @@ function nextPhoto() {
   if (!room.value?.photos.length) return
   activePhotoIndex.value = (activePhotoIndex.value + 1) % room.value.photos.length
 }
+function sanitizePhotos(variant: BackendRoomVariant): BackendRoomVariant {
+  const photos = variant.photos
+  if (photos && photos.length > 0 && photos.some(p => p.url && !p.url.includes('/images/rooms/'))) {
+    return variant
+  }
+  const code = (variant.code || '').toLowerCase()
+  const family = (variant.family_name || '').toLowerCase()
+  let list = ROOM_PHOTOS['deluxe-bay'] || []
+  if (family.includes('balcony') || code.includes('dlx') || family.includes('deluxe')) {
+    list = ROOM_PHOTOS['deluxe-balcony'] || []
+  }
+  else if (family.includes('executive') || code.includes('exc')) {
+    list = ROOM_PHOTOS['executive'] || []
+  }
+  else if (family.includes('family') || code.includes('pste') || family.includes('presidential')) {
+    list = ROOM_PHOTOS['family'] || []
+  }
+  else if (family.includes('suite') || code.includes('jste')) {
+    list = ROOM_PHOTOS['suite'] || []
+  }
+  return {
+    ...variant,
+    photos: list.map(p => ({ url: p.url, alt: p.alt })),
+  }
+}
 function mockRoom(): BackendRoomVariant | null {
   const source = roomVariants.find(item => item.id === String(route.params.id))
   if (!source) return null
@@ -47,7 +72,11 @@ function mockRoom(): BackendRoomVariant | null {
 async function load() {
   const current = ++roomGeneration
   loading.value = true; error.value = ''; room.value = null
-  try { const response = isApi.value ? await $fetch<BackendRoomVariant>(`/api/bff/catalog/rooms/${encodeURIComponent(String(route.params.id))}`) : mockRoom(); if (!response) throw new Error('Kamar tidak ditemukan.'); if (current === roomGeneration) room.value = response }
+  try {
+    const response = isApi.value ? await $fetch<BackendRoomVariant>(`/api/bff/catalog/rooms/${encodeURIComponent(String(route.params.id))}`) : mockRoom()
+    if (!response) throw new Error('Kamar tidak ditemukan.')
+    if (current === roomGeneration) room.value = sanitizePhotos(response)
+  }
   catch (cause) { if (current === roomGeneration) error.value = cause instanceof Error ? cause.message : 'Detail kamar belum dapat dimuat.' }
   finally { if (current === roomGeneration) loading.value = false }
 }
