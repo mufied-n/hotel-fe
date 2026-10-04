@@ -40,6 +40,37 @@ async function applyPromo() {
     applyingPromo.value = false
   }
 }
+
+const activePromoCode = computed(() => draft.value.search?.promoCode || '')
+const hasPromoApplied = computed(() => Boolean(activePromoCode.value && (draft.value.selectedQuote?.discount?.amount ?? 0) > 0))
+
+async function removePromo() {
+  if (!draft.value.search || !draft.value.selectedQuote || applyingPromo.value) return
+  applyingPromo.value = true
+  promoError.value = ''
+  promoSuccess.value = ''
+  try {
+    const updatedSearch = { ...draft.value.search, promoCode: undefined }
+    const item = draft.value.selectedQuote.items[0]
+    if (!item) return
+    const numRooms = draft.value.search.occupancy.length
+    const newQuote = await client.quote(updatedSearch, {
+      variantIds: Array(numRooms).fill(item.variant.id),
+      ratePlanIds: Array(numRooms).fill(item.ratePlan.id),
+    })
+    draft.value.search = updatedSearch
+    draft.value.selectedQuote = newQuote
+    promoInput.value = ''
+    promoSuccess.value = 'Kode promo berhasil dihapus.'
+  }
+  catch (cause) {
+    promoError.value = cause instanceof Error ? cause.message : 'Gagal menghapus promo.'
+  }
+  finally {
+    applyingPromo.value = false
+  }
+}
+
 async function submit() {
   if (pending.value || !draft.value.consent) return
   pending.value = true; error.value = ''
@@ -58,10 +89,19 @@ async function submit() {
       <aside class="review-aside">
         <BookingSummary :quote="draft.selectedQuote" />
         <div class="promo-box">
-          <label for="review-promo" class="promo-label">Punya kode promo?</label>
+          <div class="promo-box-head">
+            <label for="review-promo" class="promo-label">Kode promo</label>
+            <span v-if="hasPromoApplied" class="promo-applied-badge">Diskon Aktif</span>
+          </div>
           <div class="promo-group">
             <input id="review-promo" v-model.trim="promoInput" placeholder="Contoh: OCTOBREAK" maxlength="30" :disabled="applyingPromo">
-            <BrandButton :disabled="applyingPromo || !promoInput" :loading="applyingPromo" @click="applyPromo">Gunakan</BrandButton>
+            <BrandButton :disabled="applyingPromo || !promoInput" :loading="applyingPromo" @click="applyPromo">
+              {{ hasPromoApplied && promoInput.toUpperCase() === activePromoCode ? 'Terapkan Ulang' : 'Gunakan' }}
+            </BrandButton>
+          </div>
+          <div v-if="activePromoCode" class="promo-meta-row">
+            <span class="active-promo-text">Kode aktif: <strong>{{ activePromoCode }}</strong></span>
+            <button type="button" class="remove-promo-btn" :disabled="applyingPromo" @click="removePromo">✕ Hapus promo</button>
           </div>
           <UiInlineAlert v-if="promoSuccess" tone="info">{{ promoSuccess }}</UiInlineAlert>
           <UiInlineAlert v-if="promoError" tone="error">{{ promoError }}</UiInlineAlert>
@@ -74,9 +114,15 @@ async function submit() {
 <style scoped>
 .review-page { max-width: 1160px; }.review-grid, .review-main { display: grid; gap: 32px; }.review-main h1 { max-width: 760px; font-size: clamp(2.8rem, 7vw, 5.2rem); }.guest-card { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 24px; padding: clamp(24px, 5vw, 44px); border-radius: 30px; background: #000; color: #fff; }.guest-card h2 { margin-bottom: 12px; }.request { max-width: 55ch; color: #ccc; }.policy-section { display: grid; gap: 18px; }.policy-section h2 { margin-bottom: 0; }.policy-lead { display: grid; gap: 9px; padding: 20px; border-left: 5px solid var(--brand); background: var(--soft-orange); }.consent { display: flex; align-items: flex-start; gap: 12px; margin: 0; padding: 15px 0; border-top: 1px solid var(--line); font-weight: 800; }.consent input { width: 22px; min-height: auto; height: 22px; flex: 0 0 auto; accent-color: var(--brand); }.review-aside { display: grid; gap: 14px; align-content: start; }.review-aside small { color: var(--muted); }.desktop-submit { display: none; }
 .promo-box { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
+.promo-box-head { display: flex; justify-content: space-between; align-items: center; }
 .promo-label { font-weight: 800; font-size: 0.9rem; }
+.promo-applied-badge { font-size: 0.72rem; font-weight: 800; color: #2b8a3e; background: #ebfbee; padding: 2px 8px; border-radius: 999px; border: 1px solid #b2f2bb; text-transform: uppercase; }
 .promo-group { display: flex; gap: 8px; }
 .promo-group input { flex: 1; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; text-transform: uppercase; }
 .promo-group .button { flex: 0 0 auto; min-height: 40px; padding-inline: 16px; }
+.promo-meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding-top: 6px; border-top: 1px dashed var(--line); margin-top: 2px; }
+.active-promo-text { color: var(--text); }
+.remove-promo-btn { background: none; border: none; color: #c92a2a; font-size: 0.82rem; font-weight: 800; cursor: pointer; text-decoration: underline; padding: 0; }
+.remove-promo-btn:hover { color: #a51d24; }
 @media (min-width: 900px) { .review-grid { grid-template-columns: minmax(0, 1fr) 410px; align-items: start; }.review-aside { position: sticky; top: 96px; }.desktop-submit { display: inline-flex; justify-self: start; }.review-aside > .button { display: none; } }
 </style>

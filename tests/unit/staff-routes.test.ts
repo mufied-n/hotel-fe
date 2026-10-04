@@ -11,9 +11,16 @@ describe('staff BFF allowlist', () => {
     expect(resolveStaffRoute('revenue/promos', 'GET')?.upstream).toBe('/api/v1/revenue/promos')
   })
 
-  it('denies mutations, traversal and unknown resources', () => {
-    expect(resolveStaffRoute('finance/refunds', 'POST')).toBeNull()
-    expect(resolveStaffRoute('housekeeping/rooms/301/status', 'PUT')).toBeNull()
+  it('maps known mutation routes', () => {
+    expect(resolveStaffRoute('revenue/promos', 'POST')?.upstream).toBe('/api/v1/revenue/promos')
+    expect(resolveStaffRoute('revenue/promos/PULANG10', 'PUT')?.upstream).toBe('/api/v1/revenue/promos/PULANG10')
+    expect(resolveStaffRoute('finance/refunds', 'POST')?.upstream).toBe('/api/v1/finance/refunds')
+    expect(resolveStaffRoute('housekeeping/rooms/301/status', 'PUT')?.upstream).toBe('/api/v1/housekeeping/rooms/301/status')
+  })
+
+  it('denies unsupported methods, traversal and unknown resources', () => {
+    expect(resolveStaffRoute('finance/refunds', 'DELETE')).toBeNull()
+    expect(resolveStaffRoute('housekeeping/rooms/301/status', 'DELETE')).toBeNull()
     expect(resolveStaffRoute('../auth/staff/me', 'GET')).toBeNull()
     expect(resolveStaffRoute('channels', 'GET')).toBeNull()
   })

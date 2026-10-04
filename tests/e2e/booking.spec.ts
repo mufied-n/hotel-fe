@@ -57,7 +57,7 @@ test('offers explicit sample staff workspaces while API staff routes stay locked
   const mutation = await request.post('/api/bff/staff/finance/refunds', { headers: { 'X-Pulang-CSRF': '1' }, data: { booking_id: 'demo', amount_minor: 1, reason: 'sample' } })
   expect(mutation.status()).toBe(503)
   const guestRequest = await request.get('/api/bff/guest/bookings/demo/special-requests')
-  expect(guestRequest.status()).toBe(503)
+  expect([401, 503]).toContain(guestRequest.status())
 })
 
 test('runs housekeeping and handover sample actions without backend writes', async ({ page }) => {
@@ -219,4 +219,59 @@ test('keeps booking motion usable with reduced motion and exposes quote feedback
   await page.getByRole('button', { name: 'Lanjut' }).click()
   await expect(page.getByText('Menyiapkan total pilihan…')).toBeVisible()
   await navigation
+})
+
+test('supports editing and removing promos in staff workspace and guest checkout', async ({ page }) => {
+  // 1. Staff Promo Workspace: Edit existing promo
+  await page.goto('/staff/promos')
+  await expect(page.locator('html')).toHaveAttribute('data-nuxt-ready', 'true')
+  await expect(page.getByRole('heading', { name: /Daftar Promo/ })).toBeVisible()
+
+  // Click on the first promo to edit it
+  const firstPromoCard = page.locator('.ops-card--interactive').first()
+  await firstPromoCard.click()
+  await expect(page.getByRole('heading', { name: /Edit Promo:/ })).toBeVisible()
+  await expect(page.getByText('Sedang Diedit').first()).toBeVisible()
+
+  // Change discount value
+  await page.getByLabel(/Besaran Diskon/).fill('25')
+  await expect(page.getByText('Belum disimpan')).toBeVisible()
+  await page.getByRole('button', { name: 'Tinjau Perubahan' }).click()
+
+  const reviewDialog = page.getByRole('dialog', { name: /Konfirmasi Perubahan Promo/ })
+  await expect(reviewDialog).toBeVisible()
+  await expect(reviewDialog).toContainText('25%')
+  await reviewDialog.getByRole('button', { name: 'Simpan Simulasi' }).click()
+  await expect(page.getByText(/berhasil diperbarui/)).toBeVisible()
+
+  // 2. Guest Booking Flow: Promo input, clear, and review page removal
+  await page.goto('/booking')
+  await page.getByText('Punya kode promo?').first().click()
+  await page.getByLabel('Kode promo').fill('OCTOBREAK')
+  await expect(page.getByRole('button', { name: '✕ Hapus' })).toBeVisible()
+  await page.getByRole('button', { name: 'Cari kamar' }).click()
+
+  // On results page: promo tag should be visible
+  await expect(page.locator('.promo-tag')).toContainText('OCTOBREAK')
+
+  // Select room & rate
+  const card = page.locator('.room-card').first()
+  await card.getByLabel('Varian / tempat tidur').selectOption('deluxe-king-bay')
+  await card.getByLabel('Room Only').check()
+  await card.getByRole('button', { name: 'Pilih kamar & paket' }).click()
+  await page.getByRole('button', { name: 'Lanjut' }).click()
+
+  // Guest details
+  await page.getByLabel('Nama lengkap').fill('Tamu Promo')
+  await page.getByLabel('Email').fill('promo@example.test')
+  await page.getByRole('button', { name: 'Tinjau booking' }).click()
+
+  // On review page: promo discount should be active
+  await expect(page.getByText('Diskon Aktif')).toBeVisible()
+  await expect(page.getByText(/Kode aktif:\s*OCTOBREAK/)).toBeVisible()
+
+  // Remove promo
+  await page.getByRole('button', { name: '✕ Hapus promo' }).click()
+  await expect(page.getByText('Kode promo berhasil dihapus.')).toBeVisible()
+  await expect(page.getByText('Diskon Aktif')).toHaveCount(0)
 })

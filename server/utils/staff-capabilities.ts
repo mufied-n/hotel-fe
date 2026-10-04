@@ -31,11 +31,34 @@ const readable: Array<{ pattern: RegExp, target: (match: RegExpMatchArray) => st
   { pattern: /^front-desk\/verify-voucher$/, target: () => '/api/v1/front-desk/verify-voucher', queryKeys: ['ref', 'token', 'id', 'code'] },
 ]
 
+const mutable: Array<{ pattern: RegExp, methods: string[], target: (match: RegExpMatchArray) => string, queryKeys?: string[] }> = [
+  { pattern: /^revenue\/promos$/, methods: ['POST'], target: () => '/api/v1/revenue/promos' },
+  { pattern: /^revenue\/promos\/([A-Za-z0-9_-]{1,80})$/, methods: ['PUT'], target: match => `/api/v1/revenue/promos/${match[1]}` },
+  { pattern: /^revenue\/calendar\/bulk$/, methods: ['PUT'], target: () => '/api/v1/revenue/calendar/bulk' },
+  { pattern: /^housekeeping\/rooms\/([A-Za-z0-9_-]{1,80})\/status$/, methods: ['PUT'], target: match => `/api/v1/housekeeping/rooms/${match[1]}/status` },
+  { pattern: /^housekeeping\/rooms\/([A-Za-z0-9_-]{1,80})\/out-of-order$/, methods: ['POST'], target: match => `/api/v1/housekeeping/rooms/${match[1]}/out-of-order` },
+  { pattern: /^front-desk\/handover-notes$/, methods: ['POST'], target: () => '/api/v1/front-desk/handover-notes' },
+  { pattern: /^bookings\/([A-Za-z0-9_-]{1,80})\/room-move$/, methods: ['POST'], target: match => `/api/v1/bookings/${match[1]}/room-move` },
+  { pattern: /^bookings\/([A-Za-z0-9_-]{1,80})\/extend-stay$/, methods: ['POST'], target: match => `/api/v1/bookings/${match[1]}/extend-stay` },
+  { pattern: /^finance\/cases\/([A-Za-z0-9_-]{1,80})\/resolve$/, methods: ['POST'], target: match => `/api/v1/finance/cases/${match[1]}/resolve` },
+  { pattern: /^finance\/refunds$/, methods: ['POST'], target: () => '/api/v1/finance/refunds' },
+  { pattern: /^admin\/feature-flags\/([A-Za-z0-9_-]{1,80})$/, methods: ['PUT'], target: match => `/api/v1/admin/feature-flags/${match[1]}` },
+]
+
 export function resolveStaffRoute(path: string, method: string): StaffRouteCapability | null {
-  if (method !== 'GET' && method !== 'HEAD') return null
-  for (const route of readable) {
-    const match = path.match(route.pattern)
-    if (match) return { upstream: route.target(match), mutation: false, queryKeys: route.queryKeys }
+  if (method === 'GET' || method === 'HEAD') {
+    for (const route of readable) {
+      const match = path.match(route.pattern)
+      if (match) return { upstream: route.target(match), mutation: false, queryKeys: route.queryKeys }
+    }
+  }
+  else {
+    for (const route of mutable) {
+      if (route.methods.includes(method)) {
+        const match = path.match(route.pattern)
+        if (match) return { upstream: route.target(match), mutation: true, queryKeys: route.queryKeys || [] }
+      }
+    }
   }
   return null
 }

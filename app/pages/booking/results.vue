@@ -51,8 +51,23 @@ onBeforeUnmount(() => { loadGeneration++; quoteGeneration++ })
 <template>
   <div class="container results-page">
     <BookingSteps :current="1" />
-    <header class="results-head"><div><p class="eyebrow">Kamar tersedia</p><h1>Pilih cara Anda pulang.</h1></div><p v-if="input" class="search-summary">{{ input.checkIn }} → {{ input.checkOut }}<br><strong>{{ input.occupancy.length }} kamar · {{ input.occupancy.reduce((n, room) => n + room.adults + room.childrenAges.length, 0) }} tamu</strong></p></header>
-    <details class="edit"><summary>Ubah tanggal atau tamu</summary><BookingSearchForm v-if="input" :initial="input" @search="editSearch" /></details>
+    <header class="results-head">
+      <div>
+        <p class="eyebrow">Kamar tersedia</p>
+        <h1>Pilih cara Anda pulang.</h1>
+      </div>
+      <p v-if="input" class="search-summary">
+        {{ input.checkIn }} → {{ input.checkOut }}<br>
+        <strong>{{ input.occupancy.length }} kamar · {{ input.occupancy.reduce((n, room) => n + room.adults + room.childrenAges.length, 0) }} tamu</strong>
+        <span v-if="input.promoCode" class="search-summary-promo">
+          <br><span class="promo-tag">🏷️ Promo: <strong>{{ input.promoCode }}</strong></span>
+        </span>
+      </p>
+    </header>
+    <details class="edit">
+      <summary>Ubah tanggal, tamu, atau kode promo</summary>
+      <BookingSearchForm v-if="input" :initial="input" @search="editSearch" />
+    </details>
     <details v-if="!isApi" class="demo-scenarios"><summary>Kontrol skenario demo</summary><DevDemoScenarioPanel v-model="scenario" /></details>
     <Transition name="feedback"><UiInlineAlert v-if="error" tone="error" live>{{ error }} <BrandButton v-if="input" @click="load">Coba lagi</BrandButton></UiInlineAlert></Transition>
     <Transition name="content-fade" mode="out-in">
@@ -68,4 +83,5 @@ onBeforeUnmount(() => { loadGeneration++; quoteGeneration++ })
 .results-page { max-width: 1160px; }.results-head { display: grid; gap: 22px; margin-bottom: 24px; }.results-head h1 { max-width: 850px; margin-bottom: 0; }.search-summary { align-self: end; margin: 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }.edit, .demo-scenarios { margin-bottom: 20px; border-bottom: 1px solid var(--line); }.edit > summary, .demo-scenarios > summary { min-height: 50px; display: flex; align-items: center; font-weight: 900; cursor: pointer; }.edit .search-form { margin-bottom: 24px; }.demo-scenarios { font-size: .9rem; }.results-loading { display: grid; gap: 18px; min-height: 300px; padding: 20px; border-radius: 28px; background: var(--soft); }.loading-card { display: grid; gap: 18px; }.loading-lines { display: grid; align-content: center; gap: 14px; }.loading-lines > :nth-child(2) { width: 76%; }.loading-lines > :nth-child(3) { width: 48%; }.results-ready { display: grid; }.room-group { display: grid; gap: 26px; margin-block: 48px; }.section-heading { margin-bottom: 8px; }.continue { position: sticky; z-index: 18; bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 12px 12px 18px; border: 2px solid #000; border-radius: 999px; background: #fff; box-shadow: var(--shadow); transition: border-color var(--motion-feedback) var(--ease-standard), box-shadow var(--motion-feedback) var(--ease-standard); }.continue[aria-busy='true'] { border-color: var(--brand); box-shadow: 0 16px 48px rgb(245 129 50 / 24%); }.continue div { display: grid; line-height: 1.25; }.continue-label { color: var(--muted); font-size: .68rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }.continue .button { flex: 0 0 auto; }.continue p { margin: 0; }
 @media (min-width: 800px) { .results-head { grid-template-columns: 1fr auto; align-items: end; }.search-summary { min-width: 250px; }.loading-card { grid-template-columns: minmax(0, 1fr) minmax(260px, .85fr); }.continue { margin-inline: auto; max-width: 760px; } }
 @media (max-width: 560px) { .continue strong { font-size: .78rem; }.continue .button { min-height: 44px; padding-inline: 17px; } }
+.promo-tag { display: inline-block; margin-top: 6px; font-size: 0.85rem; font-weight: 800; color: #d9480f; background: #fff0eb; padding: 2px 10px; border-radius: 999px; border: 1px solid #ffd8a8; }
 </style>
