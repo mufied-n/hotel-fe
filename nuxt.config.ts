@@ -35,6 +35,11 @@ export default defineNuxtConfig({
     '/': { redirect: '/booking' },
     '/asset/rooms/**': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
   },
+  nitro: {
+    externals: {
+      inline: ['@aws-sdk/client-s3'],
+    },
+  },
   compatibilityDate: '2026-10-03',
   typescript: { typeCheck: false, strict: true },
   eslint: { config: { stylistic: true } },
