@@ -118,8 +118,11 @@ jobs:
             echo "==> 1. Mengunduh image frontend terbaru dari GHCR..."
             docker compose -f docker-compose.prod.yml pull
 
-            echo "==> 2. Me-restart layanan container frontend (zero-downtime update)..."
-            docker compose -f docker-compose.prod.yml up -d --no-deps web
+            echo "==> 2. Me-restart layanan container frontend..."
+            docker compose -f docker-compose.prod.yml down || true
+            docker rm -f hotel-fe 2>/dev/null || true
+            docker compose -f docker-compose.prod.yml up -d web
+            docker compose -f docker-compose.prod.yml ps
 
             echo "==> 3. Memeriksa status kesehatan aplikasi frontend..."
             sleep 5
