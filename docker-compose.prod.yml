@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:3002:3000"
+    extra_hosts:
+      - "hotel.fied.space:95.179.243.181"
     env_file:
       - .env
     environment:
