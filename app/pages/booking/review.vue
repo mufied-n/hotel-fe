@@ -5,7 +5,40 @@ import { validateGuest } from '~/utils/validation'
 definePageMeta({ layout: 'booking' }); useSeoMeta({ title: 'Tinjau booking' })
 const { draft } = useBookingDraft(); const client = useBookingClient(); const pending = ref(false); const error = ref('')
 const isApi = computed(() => useRuntimeConfig().public.bookingMode === 'api')
+const promoInput = ref(draft.value.search?.promoCode || '')
+const applyingPromo = ref(false)
+const promoError = ref('')
+const promoSuccess = ref('')
 onMounted(() => { if (!draft.value.selectedQuote || Object.keys(validateGuest(draft.value.guest)).length) navigateTo('/booking/guest') })
+async function applyPromo() {
+  if (!draft.value.search || !draft.value.selectedQuote || applyingPromo.value) return
+  applyingPromo.value = true
+  promoError.value = ''
+  promoSuccess.value = ''
+  try {
+    const updatedSearch = { ...draft.value.search, promoCode: promoInput.value.trim().toUpperCase() }
+    const item = draft.value.selectedQuote.items[0]
+    const numRooms = draft.value.search.occupancy.length
+    const newQuote = await client.quote(updatedSearch, {
+      variantIds: Array(numRooms).fill(item.variant.id),
+      ratePlanIds: Array(numRooms).fill(item.ratePlan.id),
+    })
+    draft.value.search = updatedSearch
+    draft.value.selectedQuote = newQuote
+    if (newQuote.discount.amount > 0) {
+      promoSuccess.value = `Kode promo ${promoInput.value.trim().toUpperCase()} berhasil diterapkan!`
+    }
+    else {
+      promoSuccess.value = 'Kode promo diterima.'
+    }
+  }
+  catch (cause) {
+    promoError.value = cause instanceof Error ? cause.message : 'Kode promo tidak valid atau tidak berlaku.'
+  }
+  finally {
+    applyingPromo.value = false
+  }
+}
 async function submit() {
   if (pending.value || !draft.value.consent) return
   pending.value = true; error.value = ''
@@ -21,10 +54,28 @@ async function submit() {
         <section class="guest-card"><div><p class="eyebrow">Tamu utama</p><h2>{{ draft.guest.fullName }}</h2><p>{{ draft.guest.email }}<template v-if="draft.guest.phone"><br>{{ draft.guest.phone }}</template></p><p v-if="draft.guest.arrivalTime">Perkiraan tiba {{ draft.guest.arrivalTime }} WIB</p><p v-if="draft.guest.specialRequests" class="request">“{{ draft.guest.specialRequests }}”</p></div><BrandButton to="/booking/guest">Edit data tamu</BrandButton></section>
         <UiSectionReveal><section class="policy-section"><p class="eyebrow">Sebelum melanjutkan</p><h2>Kebijakan penting</h2><div class="policy-lead"><strong>{{ draft.selectedQuote.policySnapshot.cancellation }}</strong><span>{{ draft.selectedQuote.policySnapshot.payment }}</span><span>{{ draft.selectedQuote.policySnapshot.noShow }}</span></div><UiPolicyAccordion title="Tentang harga dan permintaan"><p>Harga dan kebijakan berlaku untuk pilihan yang sedang ditinjau. Permintaan khusus bergantung ketersediaan dan belum berarti disetujui.</p></UiPolicyAccordion><label class="consent"><input v-model="draft.consent" type="checkbox"> <span>Saya telah membaca dan menyetujui ketentuan booking serta kebijakan pembatalan.</span></label><label class="consent"><input v-model="draft.privacyConsent" type="checkbox"> <span>Saya menyetujui pemrosesan data untuk reservasi dan komunikasi terkait.</span></label></section></UiSectionReveal>
         <UiInlineAlert v-if="error" tone="error" live>{{ error }}</UiInlineAlert><BrandButton class="desktop-submit" :disabled="!draft.consent || !draft.privacyConsent" :loading="pending" loading-label="Memproses booking…" slow-loading-label="Booking masih diproses…" @click="submit">{{ isApi ? 'Buat booking & lanjut bayar' : 'Simulasikan booking' }}</BrandButton></div>
-      <aside class="review-aside"><BookingSummary :quote="draft.selectedQuote" /><BrandButton :disabled="!draft.consent || !draft.privacyConsent" :loading="pending" loading-label="Memproses booking…" slow-loading-label="Booking masih diproses…" @click="submit">{{ isApi ? 'Buat booking & lanjut bayar' : 'Simulasikan booking' }}</BrandButton><small>{{ isApi ? 'Anda akan melanjutkan sesuai alur pembayaran pada lingkungan uji.' : 'Tidak ada reservasi atau pembayaran nyata pada mode demo.' }}</small></aside></div>
+      <aside class="review-aside">
+        <BookingSummary :quote="draft.selectedQuote" />
+        <div class="promo-box">
+          <label for="review-promo" class="promo-label">Punya kode promo?</label>
+          <div class="promo-group">
+            <input id="review-promo" v-model.trim="promoInput" placeholder="Contoh: OCTOBREAK" maxlength="30" :disabled="applyingPromo">
+            <BrandButton :disabled="applyingPromo || !promoInput" :loading="applyingPromo" @click="applyPromo">Gunakan</BrandButton>
+          </div>
+          <UiInlineAlert v-if="promoSuccess" tone="info">{{ promoSuccess }}</UiInlineAlert>
+          <UiInlineAlert v-if="promoError" tone="error">{{ promoError }}</UiInlineAlert>
+        </div>
+        <BrandButton :disabled="!draft.consent || !draft.privacyConsent" :loading="pending" loading-label="Memproses booking…" slow-loading-label="Booking masih diproses…" @click="submit">{{ isApi ? 'Buat booking & lanjut bayar' : 'Simulasikan booking' }}</BrandButton>
+        <small>{{ isApi ? 'Anda akan melanjutkan sesuai alur pembayaran pada lingkungan uji.' : 'Tidak ada reservasi atau pembayaran nyata pada mode demo.' }}</small>
+      </aside></div>
   </div>
 </template>
 <style scoped>
 .review-page { max-width: 1160px; }.review-grid, .review-main { display: grid; gap: 32px; }.review-main h1 { max-width: 760px; font-size: clamp(2.8rem, 7vw, 5.2rem); }.guest-card { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 24px; padding: clamp(24px, 5vw, 44px); border-radius: 30px; background: #000; color: #fff; }.guest-card h2 { margin-bottom: 12px; }.request { max-width: 55ch; color: #ccc; }.policy-section { display: grid; gap: 18px; }.policy-section h2 { margin-bottom: 0; }.policy-lead { display: grid; gap: 9px; padding: 20px; border-left: 5px solid var(--brand); background: var(--soft-orange); }.consent { display: flex; align-items: flex-start; gap: 12px; margin: 0; padding: 15px 0; border-top: 1px solid var(--line); font-weight: 800; }.consent input { width: 22px; min-height: auto; height: 22px; flex: 0 0 auto; accent-color: var(--brand); }.review-aside { display: grid; gap: 14px; align-content: start; }.review-aside small { color: var(--muted); }.desktop-submit { display: none; }
+.promo-box { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
+.promo-label { font-weight: 800; font-size: 0.9rem; }
+.promo-group { display: flex; gap: 8px; }
+.promo-group input { flex: 1; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; text-transform: uppercase; }
+.promo-group .button { flex: 0 0 auto; min-height: 40px; padding-inline: 16px; }
 @media (min-width: 900px) { .review-grid { grid-template-columns: minmax(0, 1fr) 410px; align-items: start; }.review-aside { position: sticky; top: 96px; }.desktop-submit { display: inline-flex; justify-self: start; }.review-aside > .button { display: none; } }
 </style>

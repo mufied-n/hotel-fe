@@ -9,7 +9,7 @@ export interface RoomFamily { id: string, name: string, description: string, var
 export interface RatePlan { id: string, name: string, breakfast: boolean, benefits: string[], policy: string }
 export interface QuoteItem { roomIndex: number, occupancy: Occupancy, variant: RoomVariant, ratePlan: RatePlan, original: Money, discount: Money, subtotal: Money, taxes: Money, service: Money, total: Money }
 export interface PolicySnapshot { cancellation: string, payment: string, noShow: string, chargesIncluded: boolean }
-export interface Quote { id: string, version: number, search: SearchInput, nights: number, numRooms?: number, items: QuoteItem[], original: Money, discount: Money, subtotal: Money, taxes: Money, service: Money, total: Money, expiresAt: string, serverTime: string, policySnapshot: PolicySnapshot }
+export interface Quote { id: string, version: number, search: SearchInput, nights: number, numRooms?: number, items: QuoteItem[], original: Money, discount: Money, subtotal: Money, taxes: Money, service: Money, total: Money, expiresAt: string, serverTime: string, policySnapshot: PolicySnapshot, nightlyRates?: Array<{ date: string, rate: Money }> }
 export interface GuestDetails { fullName: string, email: string, phone?: string, arrivalTime?: string, specialRequests: string }
 export interface BookingDraft { search: SearchInput | null, selectedQuote: Quote | null, guest: GuestDetails, consent: boolean, privacyConsent?: boolean, idempotencyKey: string | null }
 export type BookingStatus = 'pending' | 'pending_payment' | 'processing' | 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled' | 'failed' | 'expired' | 'no_show' | 'needs_assistance'

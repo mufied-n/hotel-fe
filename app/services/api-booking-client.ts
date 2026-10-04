@@ -113,6 +113,7 @@ export function createApiBookingClient(): BookingClient {
           serverTime: response.created_at,
           expiresAt: response.expires_at,
           policySnapshot: { cancellation: response.cancellation_description, payment: 'Pembayaran mengikuti tautan resmi setelah booking dibuat.', noShow: 'Hubungi hotel untuk ketentuan no-show.', chargesIncluded: true },
+          nightlyRates: response.nightly_rates?.map(nr => ({ date: nr.date, rate: rupiah(nr.rate_minor) })),
         }
       }
       catch (cause) { throw errorFrom(cause) }
