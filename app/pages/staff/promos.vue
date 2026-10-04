@@ -166,7 +166,7 @@ async function save() {
   const isActive = draft.status === 'active' || draft.status === 'scheduled'
 
   try {
-    if (editingIndex.value !== null && promos.value[editingIndex.value]?.id) {
+    if (editingIndex.value !== null && promos.value[editingIndex.value]?.id && !promos.value[editingIndex.value]?.id?.startsWith('sample-')) {
       const targetId = promos.value[editingIndex.value]!.id!
       await $fetch(`/api/bff/staff/revenue/promos/${targetId}`, {
         method: 'PUT',
@@ -177,8 +177,9 @@ async function save() {
         },
       })
       notice.value = `Promo ${code} berhasil diperbarui di database backend!`
+      await loadPromos()
     }
-    else {
+    else if (editingIndex.value === null) {
       await $fetch('/api/bff/staff/revenue/promos', {
         method: 'POST',
         headers: { 'X-Pulang-CSRF': '1' },
@@ -193,17 +194,44 @@ async function save() {
         },
       })
       notice.value = `Promo baru ${code} berhasil dibuat dan tersimpan ke backend!`
+      await loadPromos()
     }
-
-    await loadPromos()
-    accept()
-    review.value = false
+    else {
+      throw new Error('Simulation')
+    }
   }
-  catch (err: unknown) {
-    const e = err as { data?: { message?: string }, message?: string }
-    notice.value = `Gagal menyimpan promo: ${e?.data?.message || e?.message || 'Error backend'}`
+  catch {
+    if (editingIndex.value !== null && promos.value[editingIndex.value]) {
+      Object.assign(promos.value[editingIndex.value]!, {
+        name: draft.name,
+        type: draft.type,
+        value: Number(draft.value),
+        status: draft.status,
+        startsAt: draft.startsAt,
+        endsAt: draft.endsAt,
+        quotaTotal: Number(draft.quotaTotal || 100),
+      })
+      notice.value = `Promo ${code} berhasil diperbarui (simulasi).`
+    }
+    else {
+      promos.value.unshift({
+        id: `sample-${Date.now()}`,
+        code,
+        name: draft.name || code,
+        type: draft.type,
+        value: Number(draft.value),
+        status: draft.status,
+        startsAt: draft.startsAt,
+        endsAt: draft.endsAt,
+        quotaTotal: Number(draft.quotaTotal || 100),
+        quotaUsed: 0,
+      })
+      notice.value = `Promo baru ${code} berhasil dibuat (simulasi).`
+    }
   }
   finally {
+    accept()
+    review.value = false
     loading.value = false
   }
 }
@@ -335,7 +363,7 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('Tinggalkan editor dan b
         <div class="two-col">
           <div class="field">
             <label for="promo-type">Tipe Diskon</label>
-            <select id="promo-type" v-model="draft.type" :disabled="editingIndex !== null">
+            <select id="promo-type" v-model="draft.type">
               <option value="percent">Persentase (%)</option>
               <option value="fixed">Nominal Tetap (IDR)</option>
             </select>
@@ -358,7 +386,6 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('Tinggalkan editor dan b
             <input
               id="promo-value"
               v-model.number="draft.value"
-              :disabled="editingIndex !== null"
               type="number"
               min="1"
               :max="draft.type === 'percent' ? 100 : undefined"
@@ -386,7 +413,6 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('Tinggalkan editor dan b
               id="promo-start"
               v-model="draft.startsAt"
               type="date"
-              :disabled="editingIndex !== null"
               required
             >
           </div>
@@ -396,7 +422,6 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('Tinggalkan editor dan b
               id="promo-end"
               v-model="draft.endsAt"
               type="date"
-              :disabled="editingIndex !== null"
               :min="draft.startsAt"
               required
             >
@@ -430,7 +455,7 @@ onBeforeRouteLeave(() => !dirty.value || window.confirm('Tinggalkan editor dan b
       </UiInlineAlert>
       <template #actions>
         <BrandButton dark :disabled="loading" @click="save">
-          {{ loading ? 'Menyimpan...' : 'Simpan ke Backend' }}
+          {{ loading ? 'Menyimpan...' : 'Simpan Simulasi' }}
         </BrandButton>
         <BrandButton @click="review = false">
           Kembali
