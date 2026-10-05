@@ -210,5 +210,10 @@ export function createApiBookingClient(): BookingClient {
       try { await $fetch(`/api/bff/bookings/${encodeURIComponent(id)}/cancel`, { method: 'POST', headers: { 'X-Pulang-CSRF': '1' } }) }
       catch (cause) { throw errorFrom(cause) }
     },
+
+    async simulatePay(id: string): Promise<void> {
+      try { await $fetch(`/api/bff/bookings/${encodeURIComponent(id)}/simulate-pay`, { method: 'POST', headers: { 'X-Pulang-CSRF': '1' } }) }
+      catch (cause) { throw errorFrom(cause) }
+    },
   }
 }

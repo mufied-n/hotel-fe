@@ -27,6 +27,7 @@ export default defineNuxtConfig({
     r2Bucket: process.env.NUXT_R2_BUCKET || 'pulang',
     public: {
       bookingMode: process.env.NUXT_PUBLIC_BOOKING_MODE === 'api' ? 'api' : 'mock',
+      sandboxPay: process.env.NUXT_PUBLIC_SANDBOX_PAY === 'true',
       operationsMode: process.env.NUXT_PUBLIC_OPERATIONS_MODE === 'api' ? 'api' : 'mock',
       imageBaseUrl: process.env.NUXT_PUBLIC_IMAGE_BASE_URL || '/asset/rooms',
     },

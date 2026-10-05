@@ -2,7 +2,8 @@
 import type { BookingStatusView } from '~/types/booking'
 
 const props = defineProps<{ booking: BookingStatusView }>()
-defineEmits<{ cancel: [], elapsed: [] }>()
+defineEmits<{ cancel: [], elapsed: [], simulate: [] }>()
+const sandboxPay = computed(() => Boolean(useRuntimeConfig().public.sandboxPay))
 const isApi = computed(() => useRuntimeConfig().public.bookingMode === 'api')
 const content = computed(() => ({
   pending: ['Menunggu pembayaran', 'Selesaikan pembayaran sebelum batas waktu dan periksa status kembali.'],
@@ -27,7 +28,7 @@ const tone = computed(() => ['confirmed', 'checked_in', 'checked_out'].includes(
       <span>Memantau status pembayaran otomatis secara berkala</span>
     </div>
     <BookingHoldTimer v-if="['pending', 'pending_payment'].includes(booking.status)" :server-time="booking.serverTime" :expires-at="booking.expiresAt" @elapsed="$emit('elapsed')" />
-    <div class="actions"><a v-if="['pending', 'pending_payment'].includes(booking.status) && booking.paymentUrl" class="button" :href="booking.paymentUrl" rel="noopener noreferrer">Lanjut pembayaran</a><BrandButton v-if="['pending', 'pending_payment', 'confirmed'].includes(booking.status)" dark @click="$emit('cancel')">Batalkan booking</BrandButton><BrandButton v-if="['expired', 'failed'].includes(booking.status)" to="/booking">Cari kamar lagi</BrandButton><BrandButton to="/booking/my">Booking Saya</BrandButton><BrandButton to="/booking" dark>Kembali ke pencarian</BrandButton></div>
+    <div class="actions"><BrandButton v-if="isApi && sandboxPay && ['pending', 'pending_payment'].includes(booking.status)" @click="$emit('simulate')">Simulasi Bayar Sekarang (Sandbox)</BrandButton><a v-if="['pending', 'pending_payment'].includes(booking.status) && booking.paymentUrl" class="button" :href="booking.paymentUrl" rel="noopener noreferrer">Lanjut pembayaran</a><BrandButton v-if="['pending', 'pending_payment', 'confirmed'].includes(booking.status)" dark @click="$emit('cancel')">Batalkan booking</BrandButton><BrandButton v-if="['expired', 'failed'].includes(booking.status)" to="/booking">Cari kamar lagi</BrandButton><BrandButton to="/booking/my">Booking Saya</BrandButton><BrandButton to="/booking" dark>Kembali ke pencarian</BrandButton></div>
   </section>
 </template>
 <style scoped>

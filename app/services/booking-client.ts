@@ -17,4 +17,5 @@ export interface BookingClient {
   createBooking(draft: BookingDraft, idempotencyKey: string): Promise<BookingStatusView>
   getBookingStatus(id: string, scenario?: string): Promise<BookingStatusView>
   cancelBooking(id: string): Promise<void>
+  simulatePay?(id: string): Promise<void>
 }
